@@ -15,7 +15,7 @@ use amethyst::{
 use log::info;
 
 use crate::entities::{intialize_player};
-use crate::components::{Movable, Player};
+use crate::components::{Movable, Mass, Player};
 use crate::systems::{MovePlayerSystem};
 
 
@@ -43,6 +43,7 @@ impl<'a, 'b> SimpleState for MyState<'a, 'b> {
 
         world.register::<Player>();
         world.register::<Movable>();
+        world.register::<Mass>();
 
         // Get the screen dimensions so we can initialize the camera and
         // place our sprites correctly later. We'll clone this since we'll

@@ -5,7 +5,7 @@ use amethyst::{
     renderer::{SpriteRender},
 };
 
-use crate::components::{Movable, Player};
+use crate::components::{Movable, Mass, Player};
 
 pub fn intialize_player(
     world: &mut World,
@@ -28,5 +28,6 @@ pub fn intialize_player(
         .with(sprite_sheet_handle[0].clone())
         .with(Player::new(0))
         .with(Movable::new(16.0, 16.0))
+        .with(Mass::new(1.0))
         .build()
 }

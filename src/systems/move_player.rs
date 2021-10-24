@@ -2,7 +2,7 @@ use amethyst::{
     core::{Time, Transform},
     derive::SystemDesc,
     ecs::{
-        Entities, Join, Read, System, SystemData, World,
+        Join, Read, System, SystemData, World,
         WriteStorage, ReadStorage,
     },
     input::{InputHandler, StringBindings},
@@ -12,7 +12,7 @@ use log::info;
 
 use std::f32::consts::PI;
 
-use crate::components::{Movable, Player};
+use crate::components::{Movable, Mass, Player};
 
 #[derive(SystemDesc, Default)]
 pub struct MovePlayerSystem {
@@ -20,9 +20,9 @@ pub struct MovePlayerSystem {
 
 impl<'s> System<'s> for MovePlayerSystem {
     type SystemData = (
-        Entities<'s>,
         ReadStorage<'s, Player>,
         WriteStorage<'s, Movable>,
+        ReadStorage<'s, Mass>,
         WriteStorage<'s, Transform>,
         Read<'s, Time>,
         Read<'s, InputHandler<StringBindings>>, //<MovementBindingTypes>
@@ -34,9 +34,9 @@ impl<'s> System<'s> for MovePlayerSystem {
     fn run(
         &mut self,
         (
-            entities,
             players,
             mut movables,
+            masses,
             mut transforms,
             time,
             input,
@@ -44,20 +44,36 @@ impl<'s> System<'s> for MovePlayerSystem {
     ) {
         let dt = time.delta_seconds();
 
-        for (player, mut movable, mut transform) in (
+        for (player, mut movable, mass, mut transform) in (
             &players,
             &mut movables,
+            & masses,
             &mut transforms,
         )
             .join()
         {
+            let max_accel_thrust_force = 300.0;
+            let auto_decel_force = 50.0; //applied when no controller input detected
+            let friction_decel_force = 15.0; //applied always, mass cancels out
+            let air_friction_decel_force = 0.002; //applied always, based on velocity squared
+
+            // Get Current Positions, Velocities, and Angles
+
             // let movable_x = transform.translation().x;
             // let movable_y = transform.translation().y;
 
             // let movable_rotation = transform.rotation();
             // let (_, _, movable_angle) = movable_rotation.euler_angles();
 
-            let vehicle_accel_x = match player.id {
+            let sq_vel = movable.dx.powi(2) + movable.dy.powi(2);
+            
+            let vel_angle = movable.dy.atan2(movable.dx) - (PI / 2.0); //rotate by PI/2 to line up with vehicle_angle angle
+            let vel_x_comp = -vel_angle.sin(); //left is -, right is +
+            let vel_y_comp = vel_angle.cos(); //up is +, down is -
+
+
+            // Get Controller Input for each Player
+            let player_accel_x_pct = match player.id {
                 0 => input.axis_value("p1_accel_x"),
                 1 => input.axis_value("p2_accel_x"),
                 2 => input.axis_value("p3_accel_x"),
@@ -65,7 +81,7 @@ impl<'s> System<'s> for MovePlayerSystem {
                 _ => None,
             }.unwrap_or(0.0);
 
-            let vehicle_accel_y = match player.id {
+            let player_accel_y_pct = match player.id {
                 0 => input.axis_value("p1_accel_y"),
                 1 => input.axis_value("p2_accel_y"),
                 2 => input.axis_value("p3_accel_y"),
@@ -73,43 +89,47 @@ impl<'s> System<'s> for MovePlayerSystem {
                 _ => None,
             }.unwrap_or(0.0);
 
-            let accel_scalar = 100.0;
-            let automatic_decel_scalar = 150.0;
-            //let thrust_friction_decel = 0.25;
+            let mut player_input: bool = false;
 
-            // Apply Acceleration
-            if vehicle_accel_x.abs() > 0.0 {
-                movable.dx += accel_scalar * vehicle_accel_x * dt;
+            // Apply Control Accelerations
+            if player_accel_x_pct.abs() > 0.0 {
+                player_input = true;
+                movable.dx += (max_accel_thrust_force * player_accel_x_pct)/mass.mass  * dt;
             }
             else if movable.dx.abs() > 0.01 {
-                movable.dx -= automatic_decel_scalar * movable.dx.signum() * dt;
+                movable.dx -= auto_decel_force/mass.mass * movable.dx.signum() * dt;
             }
             else {
                 movable.dx = 0.0;
             }
 
-            if vehicle_accel_y.abs() > 0.0 {
-                movable.dy += accel_scalar * vehicle_accel_y * dt;
+            if player_accel_y_pct.abs() > 0.0 {
+                player_input = true;
+                movable.dy += (max_accel_thrust_force * player_accel_y_pct)/mass.mass  * dt;
             }
             else if movable.dy.abs() > 0.01 {
-                movable.dy -= automatic_decel_scalar * movable.dy.signum() * dt;
+                movable.dy -= auto_decel_force/mass.mass * movable.dy.signum() * dt;
             }
             else {
                 movable.dy = 0.0;
             }
-            
 
-            // Apply Friction Decel
-            // movable.dx -= thrust_friction_decel * movable.dx * dt;
-            // movable.dy -= thrust_friction_decel * movable.dy * dt;
+            // Apply Frictions
+            movable.dx -= friction_decel_force * movable.dx.signum() * dt;
+            movable.dy -= friction_decel_force * movable.dy.signum() * dt;
 
-            // Transform on vehicle velocity
+            let air_friction_decel_force = (air_friction_decel_force * sq_vel)/mass.mass;
+            movable.dx -= air_friction_decel_force * vel_x_comp * dt;
+            movable.dy -= air_friction_decel_force * vel_y_comp * dt;
+
+            // Apply physics updates to Transform
             transform.prepend_translation_x(movable.dx * dt);
             transform.prepend_translation_y(movable.dy * dt);
 
-            let velocity_angle = movable.dy.atan2(movable.dx) - (PI / 2.0); //rotate by PI/2 to line up with vehicle_angle angle
-            transform.set_rotation_2d(velocity_angle);
-
+            if player_input == true {
+                transform.set_rotation_2d(vel_angle);
+            }
+            
             info!("dx, dy: {:?}, {:?}", movable.dx, movable.dy);
         }
     }
