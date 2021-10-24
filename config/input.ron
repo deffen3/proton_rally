@@ -1,0 +1,15 @@
+(
+    axes: {
+        "p1_accel_x": Emulated(
+            pos: Key(D),
+            neg: Key(A),
+        ),
+        "p1_accel_y": Emulated(
+            pos: Key(W),
+            neg: Key(S),
+        ),
+    },
+    actions: {
+
+    },
+)

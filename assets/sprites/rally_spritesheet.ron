@@ -1,0 +1,12 @@
+List((
+    texture_width: 256,
+    texture_height: 256,
+    sprites: [
+        ( //proton
+            x: 0,
+            y: 0,
+            width: 16,
+            height: 16,
+        )
+    ],
+))
