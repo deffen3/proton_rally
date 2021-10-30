@@ -14,9 +14,9 @@ use amethyst::{
 
 use log::info;
 
-use crate::entities::{intialize_player};
-use crate::components::{Movable, Mass, Player};
-use crate::systems::{MovePlayerSystem};
+use crate::entities::{intialize_player, intialize_arena};
+use crate::components::{Arena, Movable, Mass, Player, Hitbox};
+use crate::systems::{MovePlayerSystem, HitboxCollisionDetection};
 
 
 #[derive(Default)]
@@ -41,9 +41,11 @@ impl<'a, 'b> SimpleState for MyState<'a, 'b> {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let world = data.world;
 
+        world.register::<Arena>();
         world.register::<Player>();
         world.register::<Movable>();
         world.register::<Mass>();
+        world.register::<Hitbox>();
 
         // Get the screen dimensions so we can initialize the camera and
         // place our sprites correctly later. We'll clone this since we'll
@@ -55,7 +57,8 @@ impl<'a, 'b> SimpleState for MyState<'a, 'b> {
 
         // Load our sprites and display them
         let sprites = load_sprites(world);
-        intialize_player(world, sprites);
+        intialize_arena(world, &sprites);
+        intialize_player(world, &sprites);
 
         create_ui_example(world);
 
@@ -63,6 +66,7 @@ impl<'a, 'b> SimpleState for MyState<'a, 'b> {
         // Create the `DispatcherBuilder` and register some `System`s that should only run for this `State`.
         let mut dispatcher_builder = DispatcherBuilder::new();
         dispatcher_builder.add(MovePlayerSystem::default(), "move_player_system", &[]);
+        dispatcher_builder.add(HitboxCollisionDetection::default(), "hitbox_collision_system", &[]);
 
         // Build and setup the `Dispatcher`.
         let mut dispatcher = dispatcher_builder.build();
@@ -151,7 +155,7 @@ fn load_sprites(world: &mut World) -> Vec<SpriteRender> {
     // Create our sprite renders. Each will have a handle to the texture
     // that it renders from. The handle is safe to clone, since it just
     // references the asset.
-    (0..1)
+    (0..2)
         .map(|i| SpriteRender {
             sprite_sheet: sheet_handle.clone(),
             sprite_number: i,

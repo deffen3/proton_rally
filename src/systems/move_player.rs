@@ -8,8 +8,6 @@ use amethyst::{
     input::{InputHandler, StringBindings},
 };
 
-use log::info;
-
 use std::f32::consts::PI;
 
 use crate::components::{Movable, Mass, Player};
@@ -47,7 +45,7 @@ impl<'s> System<'s> for MovePlayerSystem {
         for (player, mut movable, mass, mut transform) in (
             &players,
             &mut movables,
-            & masses,
+            &masses,
             &mut transforms,
         )
             .join()
@@ -57,16 +55,8 @@ impl<'s> System<'s> for MovePlayerSystem {
             let friction_decel_force = 15.0; //applied always, mass cancels out
             let air_friction_decel_force = 0.002; //applied always, based on velocity squared
 
-            // Get Current Positions, Velocities, and Angles
-
-            // let movable_x = transform.translation().x;
-            // let movable_y = transform.translation().y;
-
-            // let movable_rotation = transform.rotation();
-            // let (_, _, movable_angle) = movable_rotation.euler_angles();
-
             let sq_vel = movable.dx.powi(2) + movable.dy.powi(2);
-            
+
             let vel_angle = movable.dy.atan2(movable.dx) - (PI / 2.0); //rotate by PI/2 to line up with vehicle_angle angle
             let vel_x_comp = -vel_angle.sin(); //left is -, right is +
             let vel_y_comp = vel_angle.cos(); //up is +, down is -
@@ -96,7 +86,7 @@ impl<'s> System<'s> for MovePlayerSystem {
                 player_input = true;
                 movable.dx += (max_accel_thrust_force * player_accel_x_pct)/mass.mass  * dt;
             }
-            else if movable.dx.abs() > 0.01 {
+            else if movable.dx.abs() > 0.00001 {
                 movable.dx -= auto_decel_force/mass.mass * movable.dx.signum() * dt;
             }
             else {
@@ -107,7 +97,7 @@ impl<'s> System<'s> for MovePlayerSystem {
                 player_input = true;
                 movable.dy += (max_accel_thrust_force * player_accel_y_pct)/mass.mass  * dt;
             }
-            else if movable.dy.abs() > 0.01 {
+            else if movable.dy.abs() > 0.00001 {
                 movable.dy -= auto_decel_force/mass.mass * movable.dy.signum() * dt;
             }
             else {
@@ -129,8 +119,6 @@ impl<'s> System<'s> for MovePlayerSystem {
             if player_input == true {
                 transform.set_rotation_2d(vel_angle);
             }
-            
-            info!("dx, dy: {:?}, {:?}", movable.dx, movable.dy);
         }
     }
 }

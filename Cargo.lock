@@ -214,7 +214,7 @@ dependencies = [
  "fnv",
  "getset",
  "log",
- "nalgebra",
+ "nalgebra 0.19.0",
  "num-traits 0.2.14",
  "rayon",
  "serde",
@@ -447,6 +447,12 @@ checksum = "003d1fb2eb12eb06d4a03dbe02eea67a9fac910fa97932ab9e3a75b96a1ea5e5"
 dependencies = [
  "shared_library",
 ]
+
+[[package]]
+name = "assert_approx_eq"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3c07dab4369547dbe5114677b33fbbf724971019f3818172d59a97a61c774ffd"
 
 [[package]]
 name = "atom"
@@ -1210,6 +1216,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "fixedbitset"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "37ab347416e802de484e4d03c7316c48f1ecb56574dfd4a46a80f173ce1de04d"
+
+[[package]]
 name = "float-ord"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1573,6 +1585,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "hashbrown"
+version = "0.11.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ab5ef0d4909ef3724cc8cce6ccc8572c5c817592e9285f5464f8e86f8bd3726e"
+
+[[package]]
 name = "heck"
 version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1655,6 +1673,16 @@ dependencies = [
  "num-rational 0.3.2",
  "num-traits 0.2.14",
  "png 0.16.8",
+]
+
+[[package]]
+name = "indexmap"
+version = "1.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bc633605454125dec4b66843673f01c7df2b89479b32e0ed634e43a91cff62a5"
+dependencies = [
+ "autocfg 1.0.1",
+ "hashbrown 0.11.2",
 ]
 
 [[package]]
@@ -2066,6 +2094,43 @@ dependencies = [
 ]
 
 [[package]]
+name = "nalgebra"
+version = "0.20.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c6511777ed3da44b6a11e732a66a7d6274dfbbcd68ad968e64b778dcb829d94a"
+dependencies = [
+ "alga",
+ "approx 0.3.2",
+ "generic-array",
+ "matrixmultiply",
+ "num-complex 0.2.4",
+ "num-rational 0.2.4",
+ "num-traits 0.2.14",
+ "rand 0.7.3",
+ "rand_distr",
+ "typenum",
+]
+
+[[package]]
+name = "ncollide2d"
+version = "0.22.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "255c53356d15c18037b327c4a0d4d4ebb5f21ac77e9c4f7b79c4ba69500d826b"
+dependencies = [
+ "alga",
+ "approx 0.3.2",
+ "bitflags",
+ "downcast-rs",
+ "either",
+ "nalgebra 0.20.0",
+ "num-traits 0.2.14",
+ "petgraph",
+ "slab",
+ "slotmap",
+ "smallvec 1.7.0",
+]
+
+[[package]]
 name = "nix"
 version = "0.14.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2413,6 +2478,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d4fd5641d01c8f18a23da7b6fe29298ff4b55afcccdf78973b24cf3175fee32e"
 
 [[package]]
+name = "petgraph"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "467d164a6de56270bd7c4d070df81d07beace25012d5103ced4e9ff08d6afdb7"
+dependencies = [
+ "fixedbitset",
+ "indexmap",
+]
+
+[[package]]
 name = "phf"
 version = "0.7.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2571,7 +2646,10 @@ name = "proton_rally"
 version = "0.1.0"
 dependencies = [
  "amethyst",
+ "assert_approx_eq",
  "log",
+ "nalgebra 0.20.0",
+ "ncollide2d",
 ]
 
 [[package]]
@@ -3461,7 +3539,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c5f08237e667ac94ad20f8878b5943d91a93ccb231428446c57c21c57779016d"
 dependencies = [
  "arrayvec 0.5.2",
- "hashbrown",
+ "hashbrown 0.7.2",
  "mopa",
  "rayon",
  "shred-derive",
@@ -3510,6 +3588,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "slotmap"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6bf34684c5767b87de9119790e92e9a1d60056be2ceeaf16a8e6ef13082aeab1"
+
+[[package]]
 name = "smallvec"
 version = "0.6.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3552,7 +3636,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fff28a29366aff703d5da8a7e2c8875dc8453ac1118f842cbc0fa70c7db51240"
 dependencies = [
  "crossbeam-queue 0.2.3",
- "hashbrown",
+ "hashbrown 0.7.2",
  "hibitset",
  "log",
  "rayon",

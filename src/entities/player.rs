@@ -5,11 +5,11 @@ use amethyst::{
     renderer::{SpriteRender},
 };
 
-use crate::components::{Movable, Mass, Player};
+use crate::components::{Movable, CollisionType, Mass, Player, Hitbox, HitboxShape};
 
 pub fn intialize_player(
     world: &mut World,
-    sprite_sheet_handle: Vec<SpriteRender>,
+    sprite_sheet_handle: &Vec<SpriteRender>,
 ) -> Entity {
 
     let mut proton_transform = Transform::default();
@@ -27,7 +27,8 @@ pub fn intialize_player(
         .with(proton_transform)
         .with(sprite_sheet_handle[0].clone())
         .with(Player::new(0))
-        .with(Movable::new(16.0, 16.0))
+        .with(Movable::new(CollisionType::Bounce))
         .with(Mass::new(1.0))
+        .with(Hitbox::new(16.0, 16.0, HitboxShape::Circle))
         .build()
 }

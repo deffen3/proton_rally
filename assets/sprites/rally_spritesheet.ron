@@ -7,6 +7,12 @@ List((
             y: 0,
             width: 16,
             height: 16,
+        ),
+        ( //arena wall
+            x: 0,
+            y: 25,
+            width: 10,
+            height: 50,
         )
     ],
 ))
