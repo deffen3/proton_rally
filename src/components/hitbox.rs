@@ -1,11 +1,14 @@
 use amethyst::ecs::prelude::{Component, DenseVecStorage};
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+use serde::Deserialize;
+
+#[derive(Copy, Clone, Debug, PartialEq, Deserialize)]
 pub enum HitboxShape {
     Rectangle,
     Circle
 }
 
+#[derive(Copy, Clone, Debug, PartialEq, Deserialize)]
 pub struct Hitbox {
     pub width: f32,
     pub height: f32,

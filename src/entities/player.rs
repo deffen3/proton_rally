@@ -12,9 +12,12 @@ pub fn intialize_player(
     sprite_sheet_handle: &Vec<SpriteRender>,
 ) -> Entity {
 
+    let start_x = 100.0;
+    let start_y = 100.0;
+
     let mut proton_transform = Transform::default();
     proton_transform.set_rotation_2d(0.0);
-    proton_transform.set_translation_xyz(20.0, 20.0, 0.0);
+    proton_transform.set_translation_xyz(start_x, start_y, 0.0);
     proton_transform.set_scale(Vector3::new(
         1.0,
         1.0,

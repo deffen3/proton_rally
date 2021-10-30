@@ -14,7 +14,7 @@ use na::{Isometry2, Vector2};
 use ncollide2d::query::{self, Proximity};
 use ncollide2d::shape::{Ball, Cuboid};
 
-use crate::components::{Arena, Movable, CollisionType, calc_bounce_angle, Mass, Hitbox, HitboxShape};
+use crate::components::{ArenaElement, Movable, CollisionType, calc_bounce_angle, Mass, Hitbox, HitboxShape};
 
 #[derive(SystemDesc, Default)]
 pub struct HitboxCollisionDetection {
@@ -24,7 +24,7 @@ impl<'s> System<'s> for HitboxCollisionDetection {
     type SystemData = (
         ReadStorage<'s, Hitbox>,
         WriteStorage<'s, Movable>,
-        ReadStorage<'s, Arena>,
+        ReadStorage<'s, ArenaElement>,
         ReadStorage<'s, Mass>,
         WriteStorage<'s, Transform>,
         Read<'s, Time>,
@@ -38,7 +38,7 @@ impl<'s> System<'s> for HitboxCollisionDetection {
         (
             hitboxes,
             mut movables,
-            arena_components,
+            arena_elements,
             masses,
             mut transforms,
             time,
@@ -73,62 +73,95 @@ impl<'s> System<'s> for HitboxCollisionDetection {
                 Isometry2::new(Vector2::new(movable_x, movable_y), movable_angle);
 
             // For non-movable arena hitboxes
-            for (arena_hitbox, arena_component) in (
+            for (arena_hitbox, arena_element) in (
                 &hitboxes,
-                &arena_components,
+                &arena_elements,
             )
                 .join()
             {
-                let immovable_x = arena_component.x;
-                let immovable_y = arena_component.y;
-                let immovable_angle = arena_component.angle;
+                let immovable_x = arena_element.x;
+                let immovable_y = arena_element.y;
 
-                let immovable_collider_shape = Cuboid::new(Vector2::new(
-                    arena_hitbox.width / 2.0,
-                    arena_hitbox.height / 2.0,
-                ));
-                let immovable_collider_pos = Isometry2::new(Vector2::new(immovable_x, immovable_y), 0.0);
+                let contact_data;
 
+                if arena_hitbox.shape == HitboxShape::Rectangle {
+                    let immovable_collider_shape = Cuboid::new(Vector2::new(
+                        arena_hitbox.width / 2.0,
+                        arena_hitbox.height / 2.0,
+                    ));
+                    let immovable_collider_pos = Isometry2::new(Vector2::new(immovable_x, immovable_y), 0.0);
 
-                let collision = query::proximity(
-                    &movable_collider_pos,
-                    &movable_collider_shape,
-                    &immovable_collider_pos,
-                    &immovable_collider_shape,
-                    collision_margin,
-                );
-
-                if collision == Proximity::Intersecting {
-                    let contact_data = query::contact(
+                    let collision = query::proximity(
                         &movable_collider_pos,
                         &movable_collider_shape,
                         &immovable_collider_pos,
                         &immovable_collider_shape,
-                        0.0,
+                        collision_margin,
                     );
 
-                    match contact_data {
-                        None => (),
-                        Some(cd) => {
-                            let contact_pt = cd.world2;
+                    contact_data = match collision {
+                        Proximity::Intersecting => {
+                            query::contact(
+                                &movable_collider_pos,
+                                &movable_collider_shape,
+                                &immovable_collider_pos,
+                                &immovable_collider_shape,
+                                0.0,
+                            )
+                        },
+                        _ => None,
+                    };
+                }
+                else if arena_hitbox.shape == HitboxShape::Circle {
+                    let immovable_collider_shape = Ball::new(arena_hitbox.width / 2.0);
+                    let immovable_collider_pos = Isometry2::new(Vector2::new(immovable_x, immovable_y), 0.0);
 
-                            if movable.collision_type == CollisionType::Bounce {
-                                let (new_dx, new_dy) = calc_bounce_angle(
-                                    immovable_x - contact_pt.x,
-                                    immovable_y - contact_pt.y,
-                                    arena_hitbox.width / 2.0,
-                                    arena_hitbox.height / 2.0,
-                                    HitboxShape::Rectangle,
-                                    movable.dx.clone(),
-                                    movable.dy.clone(),
-                                );
+                    let collision = query::proximity(
+                        &movable_collider_pos,
+                        &movable_collider_shape,
+                        &immovable_collider_pos,
+                        &immovable_collider_shape,
+                        collision_margin,
+                    );
 
-                                movable.dx = new_dx * wall_hit_bounce_decel_pct;
-                                movable.dy = new_dy * wall_hit_bounce_decel_pct;
+                    contact_data = match collision {
+                        Proximity::Intersecting => {
+                            query::contact(
+                                &movable_collider_pos,
+                                &movable_collider_shape,
+                                &immovable_collider_pos,
+                                &immovable_collider_shape,
+                                0.0,
+                            )
+                        },
+                        _ => None,
+                    };
+                }
+                else {
+                    contact_data = None;
+                }
 
-                                transform.set_translation_x(movable_x - (contact_pt.x - movable_x) / 10. + movable.dx * dt);
-                                transform.set_translation_y(movable_y - (contact_pt.y - movable_y) / 10. + movable.dy * dt);
-                            }
+                match contact_data {
+                    None => (),
+                    Some(cd) => {
+                        let contact_pt = cd.world2;
+
+                        if movable.collision_type == CollisionType::Bounce {
+                            let (new_dx, new_dy) = calc_bounce_angle(
+                                immovable_x - contact_pt.x,
+                                immovable_y - contact_pt.y,
+                                arena_hitbox.width / 2.0,
+                                arena_hitbox.height / 2.0,
+                                arena_hitbox.shape,
+                                movable.dx.clone(),
+                                movable.dy.clone(),
+                            );
+
+                            movable.dx = new_dx * wall_hit_bounce_decel_pct;
+                            movable.dy = new_dy * wall_hit_bounce_decel_pct;
+
+                            transform.set_translation_x(movable_x - (contact_pt.x - movable_x) / 10. + movable.dx * dt);
+                            transform.set_translation_y(movable_y - (contact_pt.y - movable_y) / 10. + movable.dy * dt);
                         }
                     }
                 }

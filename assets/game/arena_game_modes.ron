@@ -1,0 +1,10 @@
+{
+  ClassicGunGame: [StandardCombat, StandardCombat, OpenEmptyMap],
+  DeathmatchKills: [ChaosCombat, StandardCombat, OpenEmptyMap],
+  DeathmatchStock: [LargeCombat, StandardCombat, OpenEmptyMap],
+  DeathmatchTimedKD: [StandardCombat, OpenEmptyMap],
+  KingOfTheHill: [StandardKingOfTheHill],
+  CaptureTheFlag: [LargeCombat],
+  Race: [StandardRace],
+  SurvivalWaves: [LargeCombat],
+}

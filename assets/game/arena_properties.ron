@@ -1,0 +1,205 @@
+{
+//   OpenEmptyMap: Arena (
+//     width: 400.0,
+//     height: 400.0,
+//     floor: [
+//         ArenaFloor (
+//             x: 200.0,
+//             y: 200.0,
+//             width: 400.0,
+//             height: 400.0,
+//         ),
+//     ],
+//     arena_elements: [],
+//     player_spawn_points: [
+//         PlayerSpawnPoint (x: 80.0, y: 80.0, rotation: -45.0),
+//         PlayerSpawnPoint (x: 320.0, y: 320.0, rotation: 135.0),
+//         PlayerSpawnPoint (x: 80.0, y: 320.0, rotation: -135.0),
+//         PlayerSpawnPoint (x: 320.0, y: 80.0, rotation: 45.0),
+//     ],
+//   ),
+  StandardCombat: Arena (
+    width: 400.0,
+    height: 400.0,
+    floor: [
+        ArenaFloor (
+            x: 200.0,
+            y: 200.0,
+            width: 400.0,
+            height: 400.0,
+        ),
+    ],
+    arena_elements: [
+        ArenaElementHitbox (
+            element: ArenaElement( kind:Wall, x:200.0, y:200.0),
+            hitbox: Hitbox ( shape:Circle, width:40.0, height:40.0)),
+        ArenaElementHitbox (
+            element: ArenaElement( kind:Wall, x:80.0, y:200.0),
+            hitbox: Hitbox ( shape:Circle, width:20.0, height:20.0)),
+        ArenaElementHitbox (
+            element: ArenaElement( kind:Wall, x:200.0, y:80.0),
+            hitbox: Hitbox ( shape:Circle, width:20.0, height:20.0)),
+        ArenaElementHitbox (
+            element: ArenaElement( kind:Wall, x:320.0, y:200.0),
+            hitbox: Hitbox ( shape:Circle, width:20.0, height:20.0)),
+        ArenaElementHitbox (
+            element: ArenaElement( kind:Wall, x:200.0, y:320.0),
+            hitbox: Hitbox ( shape:Circle, width:20.0, height:20.0)),
+    ],
+    player_spawn_points: [
+        PlayerSpawnPoint (x: 80.0, y: 80.0, rotation: -45.0),
+        PlayerSpawnPoint (x: 320.0, y: 320.0, rotation: 135.0),
+        PlayerSpawnPoint (x: 80.0, y: 320.0, rotation: -135.0),
+        PlayerSpawnPoint (x: 320.0, y: 80.0, rotation: 45.0),
+    ],
+  ),
+//   StandardKingOfTheHill: ArenaProperties (
+//     width: 400.0,
+//     height: 400.0,
+//     floor: [
+//         ArenaFloor (
+//             x: 200.0,
+//             y: 200.0,
+//             width: 400.0,
+//             height: 400.0,
+//         ),
+//     ],
+//     arena_elements: [
+//         ArenaRectangle (obstacle_type: Wall, x:80.0, y:200.0, width:20.0, height:20.0, rotation: 0.0),
+//         ArenaRectangle (obstacle_type: Wall, x:200.0, y:80.0, width:20.0, height:20.0, rotation: 0.0),
+//         ArenaRectangle (obstacle_type: Wall, x:320, y:200.0, width:20.0, height:20.0, rotation: 0.0),
+//         ArenaRectangle (obstacle_type: Wall, x:200.0, y:320.0, width:20.0, height:20.0, rotation: 0.0),
+
+//         ArenaRectangle (obstacle_type: Wall, x:255.0, y:200.0, width:20.0, height:20.0, rotation: 0.0),
+//         ArenaRectangle (obstacle_type: Wall, x:145.0, y:200.0, width:20.0, height:20.0, rotation: 0.0),
+//         ArenaRectangle (obstacle_type: Wall, x:200.0, y:255.0, width:20.0, height:20.0, rotation: 0.0),
+//         ArenaRectangle (obstacle_type: Wall, x:200.0, y:145.0, width:20.0, height:20.0, rotation: 0.0),
+
+//         ArenaRectangle (obstacle_type: Wall, x:255.0, y:145.0, width:20.0, height:20.0, rotation: 0.0),
+//         ArenaRectangle (obstacle_type: Wall, x:255.0, y:255.0, width:20.0, height:20.0, rotation: 0.0),
+//         ArenaRectangle (obstacle_type: Wall, x:145.0, y:255.0, width:20.0, height:20.0, rotation: 0.0),
+//         ArenaRectangle (obstacle_type: Wall, x:145.0, y:145.0, width:20.0, height:20.0, rotation: 0.0),
+//     ],
+//     player_spawn_points: [
+//         PlayerSpawnPoint (x: 80.0, y: 80.0, rotation: -45.0),
+//         PlayerSpawnPoint (x: 320.0, y: 320.0, rotation: 135.0),
+//         PlayerSpawnPoint (x: 80.0, y: 320.0, rotation: -135.0),
+//         PlayerSpawnPoint (x: 320.0, y: 80.0, rotation: 45.0),
+//     ],
+//   ),
+//   StandardRace: ArenaProperties (
+//     width: 400.0,
+//     height: 400.0,
+//     floor: [
+//         ArenaFloor (
+//             x: 200.0,
+//             y: 200.0,
+//             width: 400.0,
+//             height: 400.0,
+//         ),
+//     ],
+//     arena_elements: [
+//         ArenaCircle (obstacle_type: Wall, x:200.0, y:225.0, radius:40.0),
+//         ArenaCircle (obstacle_type: Wall, x:280.0, y:200.0, radius:40.0),
+//         ArenaCircle (obstacle_type: Wall, x:280.0, y:120.0, radius:40.0),
+//         ArenaCircle (obstacle_type: Wall, x:280.0, y:280.0, radius:40.0),
+//         ArenaCircle (obstacle_type: Wall, x:360.0, y:380.0, radius:40.0),
+//         ArenaCircle (obstacle_type: Wall, x:40.0, y:380.0, radius:40.0),
+//         ArenaCircle (obstacle_type: Wall, x:120.0, y:200.0, radius:40.0),
+//         ArenaCircle (obstacle_type: Wall, x:120.0, y:280.0, radius:40.0),
+//         ArenaCircle (obstacle_type: Wall, x:80.0, y:40.0, radius:40.0),
+//         ArenaCircle (obstacle_type: Wall, x:200.0, y:145.0, radius:40.0),
+//         ArenaCircle (obstacle_type: Wall, x:200.0, y:380.0, radius:40.0),
+//         ArenaRectangle (obstacle_type: Zone, x:335.0, y:120.0, width:20.0, height:20.0, rotation: 0.0, 
+//             effects: Some(ZoneEffects(accel_rate: 200.0, damage_rate: 0.0))),
+//         ArenaRectangle (obstacle_type: Zone, x:20.0, y:80.0, width:40.0, height:40.0, rotation: 0.0, 
+//             effects: Some(ZoneEffects(accel_rate: -20.0, damage_rate: 20.0))),
+//         ArenaRectangle (obstacle_type: Zone, x:340.0, y:260.0, width:40.0, height:40.0, rotation: 0.0, 
+//             effects: Some(ZoneEffects(accel_rate: 0.0, damage_rate: -20.0))),
+//         ArenaRectangle (obstacle_type: Zone, x:380.0, y:260.0, width:40.0, height:40.0, rotation: 0.0, 
+//             effects: Some(ZoneEffects(accel_rate: 0.0, damage_rate: -20.0))),
+//     ],
+//     player_spawn_points: [
+//         PlayerSpawnPoint (x: 330.0, y: 186.0, rotation: 0.0),
+//         PlayerSpawnPoint (x: 350.0, y: 186.0, rotation: 0.0),
+//         PlayerSpawnPoint (x: 370.0, y: 186.0, rotation: 0.0),
+//         PlayerSpawnPoint (x: 390.0, y: 186.0, rotation: 0.0),
+//     ],
+//   ),
+//   ChaosCombat: ArenaProperties (
+//     width: 200.0,
+//     height: 200.0,
+//     floor: [
+//         ArenaFloor (
+//             x: 100.0,
+//             y: 100.0,
+//             width: 200.0,
+//             height: 200.0,
+//         ),
+//     ],
+//     arena_elements: [
+//         ArenaCircle (obstacle_type: Wall, x:40.0, y:100.0, radius:10.0),
+//         ArenaCircle (obstacle_type: Wall, x:100.0, y:40.0, radius:10.0),
+//         ArenaCircle (obstacle_type: Wall, x:160, y:100.0, radius:10.0),
+//         ArenaCircle (obstacle_type: Wall, x:100.0, y:160.0, radius:10.0),
+//     ],
+//     player_spawn_points: [
+//         PlayerSpawnPoint (x: 80.0, y: 100.0, rotation: 90.0),
+//         PlayerSpawnPoint (x: 120.0, y: 100.0, rotation: -90.0),
+//         PlayerSpawnPoint (x: 100.0, y: 80.0, rotation: 180.0),
+//         PlayerSpawnPoint (x: 100.0, y: 120.0, rotation: 0.0),
+//         PlayerSpawnPoint (x: 20.0, y: 20.0, rotation: -45.0),
+//         PlayerSpawnPoint (x: 180.0, y: 180.0, rotation: 135.0),
+//         PlayerSpawnPoint (x: 20.0, y: 180.0, rotation: -135.0),
+//         PlayerSpawnPoint (x: 180.0, y: 20.0, rotation: 45.0),
+//     ],
+//   ),
+//   LargeCombat: ArenaProperties (
+//     width: 900.0,
+//     height: 500.0,
+//     floor: [
+//         ArenaFloor (
+//             x: 225.0,
+//             y: 250.0,
+//             width: 450.0,
+//             height: 500.0,
+//         ),
+//         ArenaFloor (
+//             x: 675.0,
+//             y: 250.0,
+//             width: 450.0,
+//             height: 500.0,
+//         ),
+//     ],
+//     arena_elements: [
+//         ArenaCircle (obstacle_type: Wall, x:225.0, y:250.0, radius:60.0),
+//         ArenaCircle (obstacle_type: Wall, x:675.0, y:250.0, radius:60.0),
+
+//         ArenaCircle (obstacle_type: Wall, x:80.0, y:250.0, radius:40.0),
+//         ArenaCircle (obstacle_type: Wall, x:225.0, y:80.0, radius:40.0),
+//         ArenaCircle (obstacle_type: Wall, x:225.0, y:420.0, radius:40.0),
+
+//         ArenaCircle (obstacle_type: Wall, x:675.0, y:80.0, radius:40.0),
+//         ArenaCircle (obstacle_type: Wall, x:675.0, y:420.0, radius:40.0),
+//         ArenaCircle (obstacle_type: Wall, x:820, y:250.0, radius:40.0),
+
+//         ArenaRectangle (obstacle_type: Zone, x:225.0, y:160.0, width:20.0, height:20.0, rotation: -90.0, 
+//             effects: Some(ZoneEffects(accel_rate: 200.0, damage_rate: 0.0))),
+//         ArenaRectangle (obstacle_type: Zone, x:225.0, y:340.0, width:20.0, height:20.0, rotation: -90.0, 
+//             effects: Some(ZoneEffects(accel_rate: 200.0, damage_rate: 0.0))),
+//         ArenaRectangle (obstacle_type: Zone, x:675.0, y:160.0, width:20.0, height:20.0, rotation: 90.0, 
+//             effects: Some(ZoneEffects(accel_rate: 200.0, damage_rate: 0.0))),
+//         ArenaRectangle (obstacle_type: Zone, x:675.0, y:340.0, width:20.0, height:20.0, rotation: 90.0, 
+//             effects: Some(ZoneEffects(accel_rate: 200.0, damage_rate: 0.0))),
+
+//         ArenaRectangle (obstacle_type: Zone, x:450.0, y:250.0, width:40.0, height:40.0, rotation: 0.0, 
+//             effects: Some(ZoneEffects(accel_rate: 0.0, damage_rate: -20.0))),
+//     ],
+//     player_spawn_points: [
+//         PlayerSpawnPoint (x: 100.0, y: 100.0, rotation: -45.0),
+//         PlayerSpawnPoint (x: 800.0, y: 400.0, rotation: 135.0),
+//         PlayerSpawnPoint (x: 100.0, y: 400.0, rotation: -135.0),
+//         PlayerSpawnPoint (x: 800.0, y: 100.0, rotation: 45.0),
+//     ],
+//   ),
+}

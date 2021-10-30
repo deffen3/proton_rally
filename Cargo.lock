@@ -2650,6 +2650,8 @@ dependencies = [
  "log",
  "nalgebra 0.20.0",
  "ncollide2d",
+ "ron",
+ "serde",
 ]
 
 [[package]]

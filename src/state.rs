@@ -14,8 +14,8 @@ use amethyst::{
 
 use log::info;
 
-use crate::entities::{intialize_player, intialize_arena};
-use crate::components::{Arena, Movable, Mass, Player, Hitbox};
+use crate::entities::{build_arena_store, intialize_player, intialize_arena};
+use crate::components::{ArenaNames, ArenaElement, Movable, Mass, Player, Hitbox};
 use crate::systems::{MovePlayerSystem, HitboxCollisionDetection};
 
 
@@ -41,7 +41,9 @@ impl<'a, 'b> SimpleState for MyState<'a, 'b> {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let world = data.world;
 
-        world.register::<Arena>();
+        build_arena_store(world);
+
+        world.register::<ArenaElement>();
         world.register::<Player>();
         world.register::<Movable>();
         world.register::<Mass>();
@@ -57,7 +59,9 @@ impl<'a, 'b> SimpleState for MyState<'a, 'b> {
 
         // Load our sprites and display them
         let sprites = load_sprites(world);
-        intialize_arena(world, &sprites);
+        let world_textures = load_world_textures(world);
+
+        intialize_arena(ArenaNames::StandardCombat, world, &sprites, &world_textures);
         intialize_player(world, &sprites);
 
         create_ui_example(world);
@@ -132,7 +136,7 @@ fn load_sprites(world: &mut World) -> Vec<SpriteRender> {
         let loader = world.read_resource::<Loader>();
         let texture_storage = world.read_resource::<AssetStorage<Texture>>();
         loader.load(
-            "sprites/rally_spritesheet.png",
+            "textures/rally_spritesheet.png",
             ImageFormat::default(),
             (),
             &texture_storage,
@@ -145,7 +149,7 @@ fn load_sprites(world: &mut World) -> Vec<SpriteRender> {
         let loader = world.read_resource::<Loader>();
         let sheet_storage = world.read_resource::<AssetStorage<SpriteSheet>>();
         loader.load(
-            "sprites/rally_spritesheet.ron",
+            "textures/rally_spritesheet.ron",
             SpriteSheetFormat(texture_handle),
             (),
             &sheet_storage,
@@ -155,13 +159,55 @@ fn load_sprites(world: &mut World) -> Vec<SpriteRender> {
     // Create our sprite renders. Each will have a handle to the texture
     // that it renders from. The handle is safe to clone, since it just
     // references the asset.
-    (0..2)
+    (0..3)
         .map(|i| SpriteRender {
             sprite_sheet: sheet_handle.clone(),
             sprite_number: i,
         })
         .collect()
 }
+
+
+fn load_world_textures(world: &mut World) -> Vec<SpriteRender> {
+    // Load the texture for our sprites. We'll later need to
+    // add a handle to this texture to our `SpriteRender`s, so
+    // we need to keep a reference to it.
+    let texture_handle = {
+        let loader = world.read_resource::<Loader>();
+        let texture_storage = world.read_resource::<AssetStorage<Texture>>();
+        loader.load(
+            "textures/rally_world_texture_sheet.png",
+            ImageFormat::default(),
+            (),
+            &texture_storage,
+        )
+    };
+
+    // Load the spritesheet definition file, which contains metadata on our
+    // spritesheet texture.
+    let sheet_handle = {
+        let loader = world.read_resource::<Loader>();
+        let sheet_storage = world.read_resource::<AssetStorage<SpriteSheet>>();
+        loader.load(
+            "textures/rally_world_texture_sheet.ron",
+            SpriteSheetFormat(texture_handle),
+            (),
+            &sheet_storage,
+        )
+    };
+
+    // Create our sprite renders. Each will have a handle to the texture
+    // that it renders from. The handle is safe to clone, since it just
+    // references the asset.
+    (0..1)
+        .map(|i| SpriteRender {
+            sprite_sheet: sheet_handle.clone(),
+            sprite_number: i,
+        })
+        .collect()
+}
+
+
 
 /// Creates a simple UI background and a UI text label
 /// This is the pure code only way to create UI with amethyst.

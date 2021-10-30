@@ -8,11 +8,17 @@ List((
             width: 16,
             height: 16,
         ),
-        ( //arena wall
+        ( //arena rectangle wall
             x: 0,
             y: 25,
             width: 10,
             height: 50,
-        )
+        ),
+        ( //arena circle wall
+            x: 10,
+            y: 25,
+            width: 50,
+            height: 50,
+        ),
     ],
 ))
