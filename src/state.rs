@@ -8,11 +8,12 @@ use amethyst::{
         UiTransform,
     },
     ecs::prelude::{DispatcherBuilder, Dispatcher},
+    renderer::{Camera},
 };
 
 
 use crate::entities::{build_arena_store, intialize_arena, initialize_camera, intialize_player};
-use crate::components::{ArenaNames, ArenaStoreResource, Arena, ArenaElement, Movable, Mass, Player, Hitbox};
+use crate::components::{ArenaNames, ArenaStoreResource, Arena, CameraOrtho, ArenaElement, Movable, Mass, Player, Hitbox};
 use crate::systems::{CameraTrackingSystem, MovePlayerSystem, HitboxCollisionDetection};
 
 
@@ -40,6 +41,8 @@ impl<'a, 'b> SimpleState for MyState<'a, 'b> {
 
         build_arena_store(world);
 
+        world.register::<Camera>();
+        world.register::<CameraOrtho>();
         world.register::<ArenaElement>();
         world.register::<Player>();
         world.register::<Movable>();

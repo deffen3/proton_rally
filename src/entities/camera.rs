@@ -1,11 +1,11 @@
 use amethyst::{
-    core::transform::{Parent, Transform},
-    ecs::prelude::{Entity, World},
+    core::transform::{Transform},
+    ecs::prelude::{World},
     prelude::*,
     renderer::{Camera},
 };
 
-use crate::components::Arena;
+use crate::components::{Arena, CameraOrtho};
 
 pub fn initialize_camera(world: &mut World, arena_properties: &Arena) {
     // Setup camera in a way that our screen covers whole arena and (0, 0) is in the bottom left.
@@ -16,17 +16,23 @@ pub fn initialize_camera(world: &mut World, arena_properties: &Arena) {
         1.0,
     );
 
+    let left = -arena_properties.width/2.0;
+    let right = arena_properties.width/2.0;
+    let bottom = -arena_properties.height/2.0;
+    let top = arena_properties.width/2.0;
+
     world
         .create_entity()
         // .with(Camera::standard_2d(arena_properties.width, arena_properties.height))
         .with(Camera::orthographic(
-            -arena_properties.width/2.0,
-            arena_properties.width/2.0,
-            -arena_properties.height/2.0,
-            arena_properties.height/2.0,
+            left,
+            right,
+            bottom,
+            top,
             0.0,
             5.0,
         ))
+        .with(CameraOrtho{left, right, bottom, top})
         .with(transform)
         .build();
 }
