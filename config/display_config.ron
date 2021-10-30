@@ -1,4 +1,8 @@
 (
   title: "Proton Rally",
-  dimensions: Some((800, 600)),
+  dimensions: Some((1440, 960)),
+  min_dimensions: Some((1440, 960)),
+  vysnc: false,
+  fullscreen: None,
+  decorations: true,
 )

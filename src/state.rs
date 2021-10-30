@@ -1,22 +1,19 @@
 use amethyst::{
     assets::{AssetStorage, Loader},
-    core::transform::Transform,
-    input::{get_key, is_close_requested, is_key_down, VirtualKeyCode},
+    input::{is_close_requested, is_key_down, VirtualKeyCode},
     prelude::*,
-    renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
+    renderer::{ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
     ui::{
         Anchor, FontHandle, LineMode, TtfFormat, UiImage, UiText,
         UiTransform,
     },
-    window::ScreenDimensions,
     ecs::prelude::{DispatcherBuilder, Dispatcher},
 };
 
-use log::info;
 
-use crate::entities::{build_arena_store, intialize_player, intialize_arena};
-use crate::components::{ArenaNames, ArenaElement, Movable, Mass, Player, Hitbox};
-use crate::systems::{MovePlayerSystem, HitboxCollisionDetection};
+use crate::entities::{build_arena_store, intialize_arena, initialize_camera, intialize_player};
+use crate::components::{ArenaNames, ArenaStoreResource, Arena, ArenaElement, Movable, Mass, Player, Hitbox};
+use crate::systems::{CameraTrackingSystem, MovePlayerSystem, HitboxCollisionDetection};
 
 
 #[derive(Default)]
@@ -49,19 +46,30 @@ impl<'a, 'b> SimpleState for MyState<'a, 'b> {
         world.register::<Mass>();
         world.register::<Hitbox>();
 
-        // Get the screen dimensions so we can initialize the camera and
-        // place our sprites correctly later. We'll clone this since we'll
-        // pass the world mutably to the following functions.
-        let dimensions = (*world.read_resource::<ScreenDimensions>()).clone();
+
+        let arena_name = ArenaNames::StandardCombat;
+        let arena_properties;
+        {
+            let fetched_arena_store = world.try_fetch::<ArenaStoreResource>();
+
+            if let Some(arena_store) = fetched_arena_store {
+                arena_properties = match arena_store.properties.get(&arena_name) {
+                    Some(arena_props_get) => (*arena_props_get).clone(),
+                    _ => Arena::default(),
+                };
+            } else {
+                arena_properties = Arena::default();
+            }
+        }
 
         // Place the camera
-        init_camera(world, &dimensions);
+        initialize_camera(world, &arena_properties);
 
         // Load our sprites and display them
         let sprites = load_sprites(world);
         let world_textures = load_world_textures(world);
 
-        intialize_arena(ArenaNames::StandardCombat, world, &sprites, &world_textures);
+        intialize_arena(arena_name, world, &sprites, &world_textures);
         intialize_player(world, &sprites);
 
         create_ui_example(world);
@@ -69,8 +77,20 @@ impl<'a, 'b> SimpleState for MyState<'a, 'b> {
 
         // Create the `DispatcherBuilder` and register some `System`s that should only run for this `State`.
         let mut dispatcher_builder = DispatcherBuilder::new();
-        dispatcher_builder.add(MovePlayerSystem::default(), "move_player_system", &[]);
-        dispatcher_builder.add(HitboxCollisionDetection::default(), "hitbox_collision_system", &[]);
+
+        dispatcher_builder.add(
+            CameraTrackingSystem{
+                arena_name: arena_name,
+                arena_properties: arena_properties,
+                init_state: true},
+            "camera_tracking_system",
+            &[],
+        );
+        dispatcher_builder.add(
+            MovePlayerSystem::default(), "move_player_system", &[]);
+        dispatcher_builder.add(
+            HitboxCollisionDetection::default(), "hitbox_collision_system", &[]);
+        
 
         // Build and setup the `Dispatcher`.
         let mut dispatcher = dispatcher_builder.build();
@@ -106,22 +126,6 @@ impl<'a, 'b> SimpleState for MyState<'a, 'b> {
         Trans::None
     }
 }
-
-/// Creates a camera entity in the `world`.
-///
-/// The `dimensions` are used to center the camera in the middle
-/// of the screen, as well as make it cover the entire screen.
-fn init_camera(world: &mut World, dimensions: &ScreenDimensions) {
-    let mut transform = Transform::default();
-    transform.set_translation_xyz(dimensions.width() * 0.5, dimensions.height() * 0.5, 1.);
-
-    world
-        .create_entity()
-        .with(Camera::standard_2d(dimensions.width(), dimensions.height()))
-        .with(transform)
-        .build();
-}
-
 
 
 /// Loads and splits the `logo.png` image asset into 3 sprites,

@@ -1,17 +1,17 @@
 use amethyst::ecs::prelude::{Component, DenseVecStorage};
 
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub enum PlayerState {
+    Active,
+    InActive,
+    InRespawn,
+}
+
 pub struct Player {
     pub id: usize,
+    pub state: PlayerState,
 }
 
 impl Component for Player {
     type Storage = DenseVecStorage<Self>;
-}
-
-impl Player {
-    pub fn new(id: usize) -> Player {
-        Player {
-            id,
-        }
-    }
 }
