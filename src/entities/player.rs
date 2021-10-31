@@ -36,7 +36,7 @@ pub fn intialize_player(
             .with(Player{id: player_id, state: PlayerState::Active})
             .with(Movable::new(CollisionType::Bounce))
             .with(Mass::new(1.0))
-            .with(Hitbox::new(16.0 * x_scale, 16.0 * y_scale, HitboxShape::Circle))
+            .with(Hitbox{width: 16.0 * x_scale, height: 16.0 * y_scale, shape: HitboxShape::Circle})
             .build();
     }
 }

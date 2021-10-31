@@ -14,7 +14,7 @@ use amethyst::{
 
 use crate::entities::{build_arena_store, intialize_arena, initialize_camera, intialize_player};
 use crate::components::{ArenaNames, ArenaStoreResource, Arena, CameraOrtho, ArenaElement, Movable, Mass, Player, Hitbox};
-use crate::systems::{CameraTrackingSystem, MovePlayerSystem, HitboxCollisionDetection};
+use crate::systems::{CameraTrackingSystem, MovePlayerSystem, HitboxCollisionDetection, HitboxImmovableCollisionDetection};
 
 
 #[derive(Default)]
@@ -93,7 +93,8 @@ impl<'a, 'b> SimpleState for MyState<'a, 'b> {
             MovePlayerSystem::default(), "move_player_system", &[]);
         dispatcher_builder.add(
             HitboxCollisionDetection::default(), "hitbox_collision_system", &[]);
-        
+        dispatcher_builder.add(
+            HitboxImmovableCollisionDetection::default(), "hitbox_immovable_collision_system", &[]);
 
         // Build and setup the `Dispatcher`.
         let mut dispatcher = dispatcher_builder.build();

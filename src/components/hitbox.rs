@@ -18,13 +18,3 @@ pub struct Hitbox {
 impl Component for Hitbox {
     type Storage = DenseVecStorage<Self>;
 }
-
-impl Hitbox {
-    pub fn new(width: f32, height: f32, shape: HitboxShape) -> Hitbox {
-        Hitbox {
-            width,
-            height,
-            shape,
-        }
-    }
-}

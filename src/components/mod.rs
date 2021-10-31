@@ -5,7 +5,7 @@ mod hitbox;
 mod arena;
 mod camera_ortho;
 
-pub use self::movable::{Movable, CollisionType, calc_bounce_angle};
+pub use self::movable::{Movable, CollisionType, calc_bounce_angle, get_movable_shape_pos};
 pub use self::mass::Mass;
 pub use self::player::{Player, PlayerState};
 pub use self::hitbox::{Hitbox, HitboxShape};

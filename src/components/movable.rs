@@ -1,8 +1,15 @@
-use amethyst::ecs::prelude::{Component, DenseVecStorage};
+use amethyst::{
+    ecs::prelude::{Component, DenseVecStorage},
+    core::Transform,
+};
+
+extern crate nalgebra as na;
+use na::{Isometry2, Vector2};
+use ncollide2d::shape::{Ball};
 
 use std::f32::consts::PI;
 
-use crate::components::{HitboxShape};
+use crate::components::{Hitbox, HitboxShape};
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum CollisionType {
@@ -30,6 +37,24 @@ impl Movable {
             collision_type,
         }
     }
+}
+
+pub fn get_movable_shape_pos(
+    transform: &Transform,
+    hitbox: &Hitbox,
+) -> (Isometry2<f32>, Ball<f32>) {
+    let x = transform.translation().x;
+    let y = transform.translation().y;
+
+    let rotation = transform.rotation();
+    let (_, _, angle) = rotation.euler_angles();
+
+    let collider_pos =
+        Isometry2::new(Vector2::new(x, y), angle);
+    let collider_shape =
+        Ball::new(hitbox.width / 2.0);
+
+    (collider_pos, collider_shape)
 }
 
 pub fn clean_angle(angle: f32) -> f32 {
@@ -79,8 +104,7 @@ pub fn calc_bounce_angle(
                 (_, y, _, h) if y < h && y > -h => (-moving_dx, moving_dy), //hit left or right wall
                 (_, _, _, _) => (-moving_dx, -moving_dy)
             }
-        },
-        _ => (-moving_dx, -moving_dy)
+        }
     }
 }
 

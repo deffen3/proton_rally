@@ -26,7 +26,7 @@ impl<'s> System<'s> for MovePlayerSystem {
         Read<'s, InputHandler<StringBindings>>, //<MovementBindingTypes>
     );
 
-    fn setup(&mut self, world: &mut World) {
+    fn setup(&mut self, _world: &mut World) {
     }
 
     fn run(
