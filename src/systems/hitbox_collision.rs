@@ -44,7 +44,7 @@ impl<'s> System<'s> for HitboxCollisionDetection {
             time,
         ): Self::SystemData,
     ) {
-        let _dt = time.delta_seconds();
+        let dt = time.delta_seconds();
 
         // For movable, mass, hitboxes
         for (entity, movable, _mass, hitbox, transform) in (
@@ -100,9 +100,8 @@ impl<'s> System<'s> for HitboxCollisionDetection {
 
                     match (contact_data, previous_collision) {
                         (None, None) => {}, // No current collision, no previous collision => do nothing
-                        (Some(curr_collision), Some(prev_collision)) => { 
-                            //Collision still in progress, repeat collision detected => do nothin
-                            
+                        (Some(_), Some(_)) => { 
+                            //Collision still in progress, repeat collision detected => do nothing
                         }
                         (Some(curr_collision), None) => { 
                             //New collision => calculate reaction
@@ -113,11 +112,71 @@ impl<'s> System<'s> for HitboxCollisionDetection {
                                 log::info!("Collision {:?}, {:?}", entity.id(), entity2.id());
                             }
                         }
-                        (None, Some(prev_collision)) => { 
+                        (None, Some(_)) => { 
                             // Previous collision still exists, need to "clear" the past collision
                             self.collision_ids.remove( &(entity.id(), entity2.id()) );
                         }                  
                     }
+                }
+            }
+        }
+
+        // Find collision contact pts, but separated out by each entity id
+        let mut movable_collisions: HashMap<u32, Vec<Point<f32, U2>>> = HashMap::new();
+
+        for ((e1_id, e2_id), contact_pt) in self.collision_ids.iter() {
+            {
+                let movable1_contact_pts = movable_collisions.get_mut(&e1_id);
+
+                match movable1_contact_pts {
+                    None => {
+                        movable_collisions.insert(*e1_id, vec!(*contact_pt));
+                    },
+                    Some(contact_pts) => {
+                        contact_pts.push(*contact_pt);
+                    }
+                }
+            }
+
+            {
+                let movable2_contact_pts = movable_collisions.get_mut(&e2_id);
+                match movable2_contact_pts {
+                    None => {
+                        movable_collisions.insert(*e2_id, vec!(*contact_pt));
+                    },
+                    Some(contact_pts) => {
+                        contact_pts.push(*contact_pt);
+                    }
+                }
+            }
+        }
+
+        // Resolve collisions
+        for (entity, mut movable, _mass, _hitbox, transform) in (
+            &entities,
+            &mut movables,
+            &masses,
+            &hitboxes,
+            &mut transforms,
+        )
+            .join()
+        {
+            if let Some(contact_pts) = movable_collisions.get(&entity.id()) {
+
+                for contact_pt in contact_pts.iter() {
+                    let movable_x = transform.translation().x;
+                    let movable_y = transform.translation().y;
+
+                    // let impulse = COLLISION_LOSS * (2.0 * movable_weight)
+                    //     / (movable_weight + other_movable_weight);
+
+                    let impulse = 10.0;
+
+                    movable.dx = movable.dx - impulse * (contact_pt.x - movable_x);
+                    movable.dy = movable.dy - impulse * (contact_pt.y - movable_y);
+
+                    transform.set_translation_x(movable_x + movable.dx * dt);
+                    transform.set_translation_y(movable_y + movable.dy * dt);
                 }
             }
         }
