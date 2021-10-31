@@ -6,10 +6,10 @@ use crate::components::{HitboxShape};
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum CollisionType {
-    Through,
+    //Through,
     Bounce,
-    Dissappear,
-    Stick,
+    //Dissappear,
+    //Stick,
 }
 
 pub struct Movable {

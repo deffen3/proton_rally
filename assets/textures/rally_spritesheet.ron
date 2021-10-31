@@ -8,19 +8,19 @@ List((
             width: 16,
             height: 16,
         ),
-        ( //1) player 1 proton
+        ( //1) player 2 proton
             x: 16,
             y: 0,
             width: 16,
             height: 16,
         ),
-        ( //2) player 1 proton
+        ( //2) player 3 proton
             x: 32,
             y: 0,
             width: 16,
             height: 16,
         ),
-        ( //3) player 1 proton
+        ( //3) player 4 proton
             x: 48,
             y: 0,
             width: 16,

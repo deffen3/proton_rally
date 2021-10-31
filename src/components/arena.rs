@@ -19,12 +19,15 @@ pub struct ArenaElement {
     pub kind: ArenaElementKinds,
     pub x: f32,
     pub y: f32,
+    pub rotation: i16, //degrees
 }
 
 impl Component for ArenaElement {
     type Storage = DenseVecStorage<Self>;
 }
 
+// The properties of ArenaElementHitbox should never be accessed after arena initialization from .ron file,
+// instead the components formed from these properties should be accessed
 #[derive(Copy, Clone, Debug, PartialEq, Deserialize)]
 pub struct ArenaElementHitbox {
     pub element: ArenaElement,
@@ -35,7 +38,7 @@ pub struct ArenaElementHitbox {
 pub struct PlayerSpawnPoint {
     pub x: f32,
     pub y: f32,
-    pub rotation: f32, //degrees
+    pub rotation: f32, //degrees, only supports multiples of 90deg angles due to rectangular hitbox logic
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Deserialize)]

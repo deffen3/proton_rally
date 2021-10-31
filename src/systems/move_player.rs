@@ -42,7 +42,7 @@ impl<'s> System<'s> for MovePlayerSystem {
     ) {
         let dt = time.delta_seconds();
 
-        for (player, mut movable, mass, mut transform) in (
+        for (player, mut movable, mass, transform) in (
             &players,
             &mut movables,
             &masses,

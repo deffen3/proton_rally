@@ -3,7 +3,7 @@ use amethyst::ecs::prelude::{Component, DenseVecStorage};
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum PlayerState {
     Active,
-    InActive,
+    //InActive,
     InRespawn,
 }
 

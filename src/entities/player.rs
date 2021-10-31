@@ -1,6 +1,6 @@
 use amethyst::{
     core::{transform::Transform, math::Vector3},
-    ecs::prelude::{Entity, World},
+    ecs::prelude::{World},
     prelude::*,
     renderer::{SpriteRender, Transparent},
 };
