@@ -10,12 +10,14 @@ use amethyst::{
 use std::collections::HashMap;
 
 extern crate nalgebra as na;
+use na::{Point, U2};
 use ncollide2d::query::{self, Proximity};
 
 use crate::components::{Movable, get_movable_shape_pos, CollisionType, Mass, Hitbox};
 
-#[derive(SystemDesc, Default)]
+#[derive(SystemDesc)]
 pub struct HitboxCollisionDetection {
+    pub collision_ids: HashMap<(u32, u32), Point<f32, U2>>,
 }
 
 impl<'s> System<'s> for HitboxCollisionDetection {
@@ -42,9 +44,7 @@ impl<'s> System<'s> for HitboxCollisionDetection {
             time,
         ): Self::SystemData,
     ) {
-        let dt = time.delta_seconds();
-
-        let mut collision_ids = HashMap::new();
+        let _dt = time.delta_seconds();
 
         // For movable, mass, hitboxes
         for (entity, movable, _mass, hitbox, transform) in (
@@ -75,7 +75,7 @@ impl<'s> System<'s> for HitboxCollisionDetection {
                 if entity.id() != entity2.id() {
                     let (movable2_collider_pos, movable2_collider_shape) = get_movable_shape_pos(transform2, hitbox2);
 
-                    let collision = query::proximity(
+                    let proximity_detected = query::proximity(
                         &movable_collider_pos,
                         &movable_collider_shape,
                         &movable2_collider_pos,
@@ -83,7 +83,7 @@ impl<'s> System<'s> for HitboxCollisionDetection {
                         collision_margin,
                     );
 
-                    let contact_data = match collision {
+                    let contact_data = match proximity_detected {
                         Proximity::Intersecting => {
                             query::contact(
                                 &movable_collider_pos,
@@ -96,16 +96,27 @@ impl<'s> System<'s> for HitboxCollisionDetection {
                         _ => None,
                     };
 
-                    match contact_data {
-                        None => (),
-                        Some(cd) => {
-                            let contact_pt = cd.world2;
-                            collision_ids.insert(entity.id(), (entity2.id(), contact_pt));
+                    let previous_collision = self.collision_ids.get( &(entity.id(), entity2.id()) );
+
+                    match (contact_data, previous_collision) {
+                        (None, None) => {}, // No current collision, no previous collision => do nothing
+                        (Some(curr_collision), Some(prev_collision)) => { 
+                            //Collision still in progress, repeat collision detected => do nothin
+                            
+                        }
+                        (Some(curr_collision), None) => { 
+                            //New collision => calculate reaction
+                            let contact_pt = curr_collision.world2;
+                            self.collision_ids.insert( (entity.id(), entity2.id()), contact_pt);
     
                             if movable.collision_type == CollisionType::Bounce && movable2.collision_type == CollisionType::Bounce {
                                 log::info!("Collision {:?}, {:?}", entity.id(), entity2.id());
                             }
                         }
+                        (None, Some(prev_collision)) => { 
+                            // Previous collision still exists, need to "clear" the past collision
+                            self.collision_ids.remove( &(entity.id(), entity2.id()) );
+                        }                  
                     }
                 }
             }

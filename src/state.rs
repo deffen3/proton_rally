@@ -11,6 +11,7 @@ use amethyst::{
     renderer::{Camera},
 };
 
+use std::collections::HashMap;
 
 use crate::entities::{build_arena_store, intialize_arena, initialize_camera, intialize_player};
 use crate::components::{ArenaNames, ArenaStoreResource, Arena, CameraOrtho, ArenaElement, Movable, Mass, Player, Hitbox};
@@ -92,7 +93,7 @@ impl<'a, 'b> SimpleState for MyState<'a, 'b> {
         dispatcher_builder.add(
             MovePlayerSystem::default(), "move_player_system", &[]);
         dispatcher_builder.add(
-            HitboxCollisionDetection::default(), "hitbox_collision_system", &[]);
+            HitboxCollisionDetection{collision_ids: HashMap::new()}, "hitbox_collision_system", &[]);
         dispatcher_builder.add(
             HitboxImmovableCollisionDetection::default(), "hitbox_immovable_collision_system", &[]);
 
