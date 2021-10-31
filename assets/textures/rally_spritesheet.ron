@@ -2,19 +2,37 @@ List((
     texture_width: 256,
     texture_height: 256,
     sprites: [
-        ( //proton
+        ( //0) player 1 proton
             x: 0,
             y: 0,
             width: 16,
             height: 16,
         ),
-        ( //arena rectangle wall
+        ( //1) player 1 proton
+            x: 16,
+            y: 0,
+            width: 16,
+            height: 16,
+        ),
+        ( //2) player 1 proton
+            x: 32,
+            y: 0,
+            width: 16,
+            height: 16,
+        ),
+        ( //3) player 1 proton
+            x: 48,
+            y: 0,
+            width: 16,
+            height: 16,
+        ),
+        ( //4) arena rectangle wall
             x: 0,
             y: 25,
             width: 10,
             height: 50,
         ),
-        ( //arena circle wall
+        ( //5) arena circle wall
             x: 10,
             y: 25,
             width: 50,

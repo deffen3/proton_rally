@@ -72,8 +72,8 @@ impl<'a, 'b> SimpleState for MyState<'a, 'b> {
         let sprites = load_sprites(world);
         let world_textures = load_world_textures(world);
 
-        intialize_arena(arena_name, world, &sprites, &world_textures);
-        intialize_player(world, &sprites);
+        intialize_arena(world, &arena_properties, &sprites, &world_textures);
+        intialize_player(world, &arena_properties, &sprites);
 
         create_ui_example(world);
 
@@ -166,7 +166,7 @@ fn load_sprites(world: &mut World) -> Vec<SpriteRender> {
     // Create our sprite renders. Each will have a handle to the texture
     // that it renders from. The handle is safe to clone, since it just
     // references the asset.
-    (0..3)
+    (0..6)
         .map(|i| SpriteRender {
             sprite_sheet: sheet_handle.clone(),
             sprite_number: i,
