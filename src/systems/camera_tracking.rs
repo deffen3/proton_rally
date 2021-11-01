@@ -98,8 +98,8 @@ impl<'s> System<'s> for CameraTrackingSystem {
 
         //this is the extra buffer space that the camera gives
         //offset was 80.0 for combat and 160.0 for race mode in old rally_game project
-        let x_offset = 80.0 + 4.0 * player_max_dx;
-        let y_offset = 80.0 + 4.0 * player_max_dy;
+        let x_offset = 80.0 + 1.0 * player_max_dx;
+        let y_offset = 80.0 + 1.0 * player_max_dy;
 
         player_min_x = (player_min_x - x_offset).max(0.0);
         player_max_x = (player_max_x + x_offset).min(self.arena_properties.width);

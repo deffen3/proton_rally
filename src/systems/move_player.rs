@@ -53,7 +53,7 @@ impl<'s> System<'s> for MovePlayerSystem {
             let max_accel_thrust_force = 300.0;
             let auto_decel_force = max_accel_thrust_force / 6.0; //applied when no controller input detected
             let friction_decel_force = max_accel_thrust_force / 20.0; //applied always, mass cancels out
-            let air_friction_decel_force = max_accel_thrust_force / 60_000.0; //applied always, based on velocity squared
+            let air_friction_decel_force = max_accel_thrust_force / 15_000.0; //applied always, based on velocity squared
 
             let sq_vel = movable.dx.powi(2) + movable.dy.powi(2);
 
