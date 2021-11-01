@@ -13,9 +13,16 @@ use amethyst::{
 
 use std::collections::HashMap;
 
-use crate::entities::{build_arena_store, intialize_arena, initialize_camera, intialize_player};
-use crate::components::{ArenaNames, ArenaStoreResource, Arena, CameraOrtho, ArenaElement, Movable, Mass, Player, Hitbox};
-use crate::systems::{CameraTrackingSystem, MovePlayerSystem, HitboxCollisionDetection, HitboxImmovableCollisionDetection};
+use crate::entities::{
+    build_arena_store, intialize_arena, initialize_camera, intialize_player};
+use crate::components::{
+    ArenaNames, ArenaStoreResource, Arena, ArenaElement,
+    CameraOrtho, 
+    Movable, Mass, Player, Hitbox, Weapon};
+use crate::systems::{
+    CameraTrackingSystem, 
+    MovePlayerSystem, AimWeaponSystem,
+    HitboxCollisionDetection, HitboxImmovableCollisionDetection};
 
 
 #[derive(Default)]
@@ -49,6 +56,7 @@ impl<'a, 'b> SimpleState for MyState<'a, 'b> {
         world.register::<Movable>();
         world.register::<Mass>();
         world.register::<Hitbox>();
+        world.register::<Weapon>();
 
 
         let arena_name = ArenaNames::StandardCombat;
@@ -93,10 +101,13 @@ impl<'a, 'b> SimpleState for MyState<'a, 'b> {
         dispatcher_builder.add(
             MovePlayerSystem::default(), "move_player_system", &[]);
         dispatcher_builder.add(
+            AimWeaponSystem::default(), "aim_weapon_system", &[]);
+        dispatcher_builder.add(
             HitboxCollisionDetection{collision_ids: HashMap::new()}, "hitbox_collision_system", &[]);
         dispatcher_builder.add(
             HitboxImmovableCollisionDetection::default(), "hitbox_immovable_collision_system", &[]);
 
+        
         // Build and setup the `Dispatcher`.
         let mut dispatcher = dispatcher_builder.build();
         dispatcher.setup(world);
@@ -168,7 +179,7 @@ fn load_sprites(world: &mut World) -> Vec<SpriteRender> {
     // Create our sprite renders. Each will have a handle to the texture
     // that it renders from. The handle is safe to clone, since it just
     // references the asset.
-    (0..6)
+    (0..7)
         .map(|i| SpriteRender {
             sprite_sheet: sheet_handle.clone(),
             sprite_number: i,

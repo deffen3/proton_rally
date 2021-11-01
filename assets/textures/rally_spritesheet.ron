@@ -38,5 +38,11 @@ List((
             width: 50,
             height: 50,
         ),
+        ( //6) proton cannon
+            x: 64,
+            y: 0,
+            width: 11,
+            height: 22, //fake height to help with rotation axis, real height = 6
+        ),
     ],
 ))
