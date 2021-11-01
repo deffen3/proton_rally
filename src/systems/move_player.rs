@@ -63,21 +63,37 @@ impl<'s> System<'s> for MovePlayerSystem {
 
 
             // Get Controller Input for each Player
-            let player_accel_x_pct = match player.id {
-                0 => input.axis_value("p1_accel_x"),
-                1 => input.axis_value("p2_accel_x"),
-                2 => input.axis_value("p3_accel_x"),
-                3 => input.axis_value("p4_accel_x"),
+            let mut player_accel_x_pct = match player.id {
+                0 => input.axis_value("p1_move_x"),
+                1 => input.axis_value("p2_move_x"),
+                2 => input.axis_value("p3_move_x"),
+                3 => input.axis_value("p4_move_x"),
                 _ => None,
             }.unwrap_or(0.0);
 
-            let player_accel_y_pct = match player.id {
-                0 => input.axis_value("p1_accel_y"),
-                1 => input.axis_value("p2_accel_y"),
-                2 => input.axis_value("p3_accel_y"),
-                3 => input.axis_value("p4_accel_y"),
+            // keyboard override for p1 for development
+            if player_accel_x_pct == 0.0 {
+                player_accel_x_pct = match player.id {
+                    0 => input.axis_value("p1kb_move_x"),
+                    _ => None,
+                }.unwrap_or(0.0);
+            }
+
+            let mut player_accel_y_pct = match player.id {
+                0 => input.axis_value("p1_move_y"),
+                1 => input.axis_value("p2_move_y"),
+                2 => input.axis_value("p3_move_y"),
+                3 => input.axis_value("p4_move_y"),
                 _ => None,
             }.unwrap_or(0.0);
+
+            // keyboard override for p1 for development
+            if player_accel_y_pct == 0.0 {
+                player_accel_y_pct = match player.id {
+                    0 => input.axis_value("p1kb_move_y"),
+                    _ => None,
+                }.unwrap_or(0.0);
+            }
 
             let mut player_input: bool = false;
 

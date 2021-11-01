@@ -41,7 +41,7 @@ fn main() -> amethyst::Result<()> {
 
     let resources = app_root.join("assets");
     let display_config = app_root.join("config/display_config.ron");
-    let key_bindings_path = app_root.join("config/input.ron");
+    let key_bindings_path = app_root.join("config/bindings_controller.ron");
 
     let game_data = GameDataBuilder::default()
         .with_bundle(TransformBundle::new())?

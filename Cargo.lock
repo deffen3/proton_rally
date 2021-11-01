@@ -258,6 +258,7 @@ dependencies = [
  "derivative 2.2.0",
  "derive-new",
  "fnv",
+ "sdl2",
  "serde",
  "smallvec 1.7.0",
  "winit",
@@ -2651,6 +2652,7 @@ dependencies = [
  "nalgebra 0.20.0",
  "ncollide2d",
  "ron",
+ "sdl2",
  "serde",
 ]
 
@@ -3425,6 +3427,28 @@ name = "scopeguard"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
+
+[[package]]
+name = "sdl2"
+version = "0.33.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1f74124048ea86b5cd50236b2443f6f57cf4625a8e8818009b4e50dbb8729a43"
+dependencies = [
+ "bitflags",
+ "lazy_static",
+ "libc",
+ "sdl2-sys",
+]
+
+[[package]]
+name = "sdl2-sys"
+version = "0.33.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c2e1deb61ff274d29fb985017d4611d4004b113676eaa9c06754194caf82094e"
+dependencies = [
+ "cfg-if 0.1.10",
+ "libc",
+]
 
 [[package]]
 name = "semver"
