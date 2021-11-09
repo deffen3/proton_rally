@@ -40,7 +40,8 @@ impl<'s> System<'s> for FireWeaponsSystem {
     ) {
         let dt = time.delta_seconds();
 
-        for (player, weapon, transform) in (
+        for (entity, player, weapon, transform) in (
+            &entities,
             &mut players,
             &mut weapons,
             &mut transforms,
@@ -62,6 +63,7 @@ impl<'s> System<'s> for FireWeaponsSystem {
                 (Some(fire), cooldown_timer) if (fire == true) & (cooldown_timer <= 0.0) => {
                     fire_weapon(
                         &entities,
+                        entity.id(),
                         &transform,
                         &weapon,
                         &weapon_fire_resource,

@@ -73,7 +73,16 @@ impl<'s> System<'s> for HitboxCollisionDetection {
             )
                 .join()
             {
-                if entity.id() != entity2.id() {
+                let collision_avoid_id_check1 = match movable2.prevent_collision_id {
+                    Some(prevent_id_2) => {entity.id() != prevent_id_2},
+                    _ => true,
+                };
+                let collision_avoid_id_check2 = match movable.prevent_collision_id {
+                    Some(prevent_id_1) => {entity2.id() != prevent_id_1},
+                    _ => true,
+                };
+
+                if (entity.id() != entity2.id()) && collision_avoid_id_check1 && collision_avoid_id_check2 {
                     let (movable2_collider_pos,
                         movable2_collider_shape) = get_movable_shape_pos(transform2, hitbox2);
 
@@ -109,10 +118,6 @@ impl<'s> System<'s> for HitboxCollisionDetection {
                             //New collision => calculate reaction
                             let contact_pt = curr_collision.world2;
                             self.collision_ids.insert( (entity.id(), entity2.id()), contact_pt);
-    
-                            if movable.collision_type == CollisionType::Bounce && movable2.collision_type == CollisionType::Bounce {
-                                log::info!("Collision {:?}, {:?}", entity.id(), entity2.id());
-                            }
                         }
                         (None, Some(_)) => { 
                             // Previous collision still exists, need to "clear" the past collision
@@ -169,16 +174,25 @@ impl<'s> System<'s> for HitboxCollisionDetection {
                     let movable_x = transform.translation().x;
                     let movable_y = transform.translation().y;
 
-                    // let impulse = COLLISION_LOSS * (2.0 * movable_weight)
-                    //     / (movable_weight + other_movable_weight);
+                    match movable.collision_type {
+                        CollisionType::Bounce => {
+                            // let impulse = COLLISION_LOSS * (2.0 * movable_weight)
+                            //     / (movable_weight + other_movable_weight);
 
-                    let impulse = 10.0;
+                            let impulse = 10.0;
 
-                    movable.dx = movable.dx - impulse * (contact_pt.x - movable_x);
-                    movable.dy = movable.dy - impulse * (contact_pt.y - movable_y);
+                            movable.dx = movable.dx - impulse * (contact_pt.x - movable_x);
+                            movable.dy = movable.dy - impulse * (contact_pt.y - movable_y);
 
-                    transform.set_translation_x(movable_x + movable.dx * dt);
-                    transform.set_translation_y(movable_y + movable.dy * dt);
+                            transform.set_translation_x(movable_x + movable.dx * dt);
+                            transform.set_translation_y(movable_y + movable.dy * dt);
+                        },
+                        CollisionType::_Stick => {
+                            movable.dx = 0.0;
+                            movable.dy = 0.0;
+                        },
+                        _ => {}
+                    }
                 }
             }
         }

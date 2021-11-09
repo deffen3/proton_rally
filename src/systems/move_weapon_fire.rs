@@ -21,22 +21,22 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
         Read<'s, Time>,
     );
 
-    fn setup(&mut self, world: &mut World) {
+    fn setup(&mut self, _world: &mut World) {
     }
 
     fn run(
         &mut self,
         (
             entities,
-            mut weapon_fires,
-            mut movables,
+            weapon_fires,
+            movables,
             mut transforms,
             time
         ): Self::SystemData,
     ) {
         let dt = time.delta_seconds();
 
-        for (entity, weapon_fire, movable, transform) in (
+        for (_entity, _weapon_fire, movable, transform) in (
             &entities,
             &weapon_fires,
             &movables,

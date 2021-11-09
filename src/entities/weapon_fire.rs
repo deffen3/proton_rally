@@ -6,12 +6,13 @@ use amethyst::{
 
 use std::f32::consts::PI;
 
-use crate::components::{CollisionType, Movable, Weapon, WeaponFire};
+use crate::components::{CollisionType, Movable, Weapon, WeaponFire, Hitbox, Mass};
 use crate::resources::WeaponFireResource;
 
 
 pub fn fire_weapon(
     entities: &Entities,
+    entity_id: u32,
     player_transform: &Transform,
     weapon: &Weapon,
     weapon_fire_resource: &ReadExpect<WeaponFireResource>,
@@ -32,15 +33,28 @@ pub fn fire_weapon(
             dx: weapon.shot_speed * -weapon.angle.sin(),
             dy: weapon.shot_speed * weapon.angle.cos(),
             collision_type: CollisionType::Bounce,
+            prevent_collision_id: Some(entity_id),
         };
 
         (local_transform, weapon_fire_movable)
+    };
+
+    let weapon_fire_hitbox = Hitbox{
+        height: 2.0,
+        width: 2.0,
+        shape: crate::components::HitboxShape::Circle,
+    };
+
+    let weapon_fire_mass = Mass{
+        mass: 0.1,
     };
 
     let weapon_sprite = weapon_fire_resource.player_1_weapon_fire.clone();
 
     lazy_update.insert(weapon_fire_entity, weapon_fire);
     lazy_update.insert(weapon_fire_entity, weapon_fire_movable);
+    lazy_update.insert(weapon_fire_entity, weapon_fire_hitbox);
+    lazy_update.insert(weapon_fire_entity, weapon_fire_mass);
 
     lazy_update.insert(weapon_fire_entity, weapon_sprite);
     lazy_update.insert(weapon_fire_entity, local_transform);

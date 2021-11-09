@@ -135,24 +135,31 @@ impl<'s> System<'s> for HitboxImmovableCollisionDetection {
                     Some(cd) => {
                         let contact_pt = cd.world2;
 
-                        if movable.collision_type == CollisionType::Bounce {
-                            let (new_dx, new_dy) = calc_bounce_angle(
-                                immovable_x - contact_pt.x,
-                                immovable_y - contact_pt.y,
-                                arena_hitbox.width / 2.0,
-                                arena_hitbox.height / 2.0,
-                                arena_hitbox.shape,
-                                movable.dx.clone(),
-                                movable.dy.clone(),
-                            );
+                        match movable.collision_type {
+                            CollisionType::Bounce => {
+                                let (new_dx, new_dy) = calc_bounce_angle(
+                                    immovable_x - contact_pt.x,
+                                    immovable_y - contact_pt.y,
+                                    arena_hitbox.width / 2.0,
+                                    arena_hitbox.height / 2.0,
+                                    arena_hitbox.shape,
+                                    movable.dx.clone(),
+                                    movable.dy.clone(),
+                                );
 
-                            movable.dx = new_dx * wall_hit_bounce_decel_pct;
-                            movable.dy = new_dy * wall_hit_bounce_decel_pct;
+                                movable.dx = new_dx * wall_hit_bounce_decel_pct;
+                                movable.dy = new_dy * wall_hit_bounce_decel_pct;
 
-                            let movable_x = transform.translation().x;
-                            let movable_y = transform.translation().y;
-                            transform.set_translation_x(movable_x - (contact_pt.x - movable_x) / 10. + movable.dx * dt);
-                            transform.set_translation_y(movable_y - (contact_pt.y - movable_y) / 10. + movable.dy * dt);
+                                let movable_x = transform.translation().x;
+                                let movable_y = transform.translation().y;
+                                transform.set_translation_x(movable_x - (contact_pt.x - movable_x) / 10. + movable.dx * dt);
+                                transform.set_translation_y(movable_y - (contact_pt.y - movable_y) / 10. + movable.dy * dt);
+                            },
+                            CollisionType::_Stick => {
+                                movable.dx = 0.0;
+                                movable.dy = 0.0;
+                            },
+                            _ => {}
                         }
                     }
                 }
