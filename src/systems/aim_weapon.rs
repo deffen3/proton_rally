@@ -11,7 +11,7 @@ use amethyst::{
 use std::f32::consts::PI;
 use std::collections::HashMap;
 
-use crate::components::{Weapon, Player};
+use crate::components::{Weapon, WeaponAimChild, Player};
 
 #[derive(SystemDesc, Default)]
 pub struct AimWeaponSystem {
@@ -22,6 +22,7 @@ impl<'s> System<'s> for AimWeaponSystem {
         Entities<'s>,
         ReadStorage<'s, Player>,
         WriteStorage<'s, Weapon>,
+        WriteStorage<'s, WeaponAimChild>,
         WriteStorage<'s, Transform>,
         ReadStorage<'s, Parent>,
         Read<'s, InputHandler<StringBindings>>,
@@ -36,17 +37,19 @@ impl<'s> System<'s> for AimWeaponSystem {
             entities,
             players,
             mut weapons,
+            mut weapon_aims,
             mut transforms,
             parents,
             input,
         ): Self::SystemData,
     ) {
         //Find the angles for the parent player body, so this can be subtracted out of the weapon angle later
-        let mut id_match_angles: HashMap<u32, f32> = HashMap::new();
+        let mut id_match_angles: HashMap<u32, (f32, Option<f32>)> = HashMap::new();
 
-        for (entity, _player, transform) in (
+        for (entity, player, weapon, transform) in (
             &entities,
             &players,
+            &mut weapons,
             &mut transforms,
         )
             .join()
@@ -56,21 +59,8 @@ impl<'s> System<'s> for AimWeaponSystem {
             let player_rotation = transform.rotation();
             let (_, _, player_angle) = player_rotation.euler_angles();
 
-            id_match_angles.insert(player_id, player_angle);
-        }
-
-
-        for (weapon, parent, transform) in (
-            &mut weapons,
-            &parents,
-            &mut transforms,
-        )
-            .join()
-        {
-            let parent_id = parent.entity.id();
-
             // Get Controller Input for each Player
-            let player_aim_x = match weapon.id {
+            let player_aim_x = match player.id {
                 0 => input.axis_value("p1_aim_x"),
                 1 => input.axis_value("p2_aim_x"),
                 2 => input.axis_value("p3_aim_x"),
@@ -84,7 +74,7 @@ impl<'s> System<'s> for AimWeaponSystem {
             //     Some(aim_x) => Some(aim_x),
             // };
 
-            let player_aim_y = match weapon.id {
+            let player_aim_y = match player.id {
                 0 => input.axis_value("p1_aim_y"),
                 1 => input.axis_value("p2_aim_y"),
                 2 => input.axis_value("p3_aim_y"),
@@ -98,17 +88,40 @@ impl<'s> System<'s> for AimWeaponSystem {
             //     Some(aim_y) => Some(aim_y),
             // };
 
-            let player_base_angle = id_match_angles.get(&parent_id).unwrap_or(&0.0);
-
-            match (player_aim_x, player_aim_y) {
+            let weapon_aim_angle = match (player_aim_x, player_aim_y) {
                 (Some(aim_x), Some(aim_y)) if aim_x.abs() + aim_y.abs() > 0.75 => {
-                    weapon.angle = aim_y.atan2(aim_x) - (PI / 2.0);
-                    transform.set_rotation_2d(-player_base_angle + weapon.angle);
+                    Some(aim_y.atan2(aim_x) - (PI / 2.0))
                 },
-                (_, _) => { // do nothing to aim weapon, just update for player base angle
-                    transform.set_rotation_2d(-player_base_angle + weapon.angle);
-                }, 
+                (_, _) => None, // do nothing to aim weapon, just update for player base angle
             };
+
+            if let Some(new_weapon_aim_angle) = weapon_aim_angle {
+                weapon.angle = new_weapon_aim_angle;
+            }
+
+            id_match_angles.insert(player_id, (player_angle, weapon_aim_angle));
+        }
+
+
+        for (weapon_aim, parent, transform) in (
+            &mut weapon_aims,
+            &parents,
+            &mut transforms,
+        )
+            .join()
+        {
+            let parent_id = parent.entity.id();
+
+            let (player_base_angle, weapon_aim_angle) = id_match_angles
+                .get(&parent_id)
+                .unwrap_or(&(0.0, None));
+            
+            match weapon_aim_angle {
+                Some(angle) => weapon_aim.angle = *angle,
+                None => ()
+            };
+
+            transform.set_rotation_2d(-player_base_angle + weapon_aim.angle);
         }
     }
 }

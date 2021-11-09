@@ -60,7 +60,8 @@ impl<'s> System<'s> for HitboxCollisionDetection {
 
             // Get Current Positions, Velocities, and Angles
 
-            let (movable_collider_pos, movable_collider_shape) = get_movable_shape_pos(transform, hitbox);
+            let (movable_collider_pos,
+                movable_collider_shape) = get_movable_shape_pos(transform, hitbox);
 
             // For all other movable, mass, hitboxes
             for (entity2, movable2, _mass2, hitbox2, transform2) in (
@@ -73,7 +74,8 @@ impl<'s> System<'s> for HitboxCollisionDetection {
                 .join()
             {
                 if entity.id() != entity2.id() {
-                    let (movable2_collider_pos, movable2_collider_shape) = get_movable_shape_pos(transform2, hitbox2);
+                    let (movable2_collider_pos,
+                        movable2_collider_shape) = get_movable_shape_pos(transform2, hitbox2);
 
                     let proximity_detected = query::proximity(
                         &movable_collider_pos,

@@ -2,25 +2,25 @@ List((
     texture_width: 256,
     texture_height: 256,
     sprites: [
-        ( //0) player 1 proton
+        ( //0) player 1 body
             x: 0,
             y: 0,
             width: 16,
             height: 16,
         ),
-        ( //1) player 2 proton
+        ( //1) player 2 body
             x: 16,
             y: 0,
             width: 16,
             height: 16,
         ),
-        ( //2) player 3 proton
+        ( //2) player 3 body
             x: 32,
             y: 0,
             width: 16,
             height: 16,
         ),
-        ( //3) player 4 proton
+        ( //3) player 4 body
             x: 48,
             y: 0,
             width: 16,
@@ -42,7 +42,31 @@ List((
             x: 64,
             y: 0,
             width: 11,
-            height: 22, //fake height to help with rotation axis, real height = 6
+            height: 18, //fake height to help with rotation axis, real height = 6
+        ),
+        ( //7) player 1 shot
+            x: 61,
+            y: 18,
+            width: 4,
+            height: 4,
+        ),
+        ( //8) player 2 shot
+            x: 61,
+            y: 22,
+            width: 4,
+            height: 4,
+        ),
+        ( //9) player 3 shot
+            x: 61,
+            y: 26,
+            width: 4,
+            height: 4,
+        ),
+        ( //10) player 4 shot
+            x: 61,
+            y: 30,
+            width: 4,
+            height: 4,
         ),
     ],
 ))

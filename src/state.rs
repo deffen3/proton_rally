@@ -1,28 +1,31 @@
 use amethyst::{
-    assets::{AssetStorage, Loader},
+    assets::{Loader},
     input::{is_close_requested, is_key_down, VirtualKeyCode},
     prelude::*,
-    renderer::{ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
     ui::{
         Anchor, FontHandle, LineMode, TtfFormat, UiImage, UiText,
         UiTransform,
     },
     ecs::prelude::{DispatcherBuilder, Dispatcher},
     renderer::{Camera},
+    utils::removal::Removal,
 };
 
 use std::collections::HashMap;
 
-use crate::entities::{
-    build_arena_store, intialize_arena, initialize_camera, intialize_player};
+use crate::{components::{WeaponAimChild, WeaponFire}, entities::{
+    build_arena_store, intialize_arena, initialize_camera, intialize_player}};
 use crate::components::{
     ArenaNames, ArenaStoreResource, Arena, ArenaElement,
     CameraOrtho, 
     Movable, Mass, Player, Hitbox, Weapon};
 use crate::systems::{
     CameraTrackingSystem, 
-    MovePlayerSystem, AimWeaponSystem,
+    MovePlayerSystem, AimWeaponSystem, FireWeaponsSystem, MoveWeaponFireSystem,
     HitboxCollisionDetection, HitboxImmovableCollisionDetection};
+use crate::resources::{
+    load_sprites, load_world_textures, 
+    initialize_weapon_fire_resource};
 
 
 #[derive(Default)]
@@ -57,6 +60,9 @@ impl<'a, 'b> SimpleState for MyState<'a, 'b> {
         world.register::<Mass>();
         world.register::<Hitbox>();
         world.register::<Weapon>();
+        world.register::<WeaponFire>();
+        world.register::<WeaponAimChild>();
+        world.register::<Removal<u32>>();
 
 
         let arena_name = ArenaNames::StandardCombat;
@@ -81,6 +87,8 @@ impl<'a, 'b> SimpleState for MyState<'a, 'b> {
         let sprites = load_sprites(world);
         let world_textures = load_world_textures(world);
 
+        initialize_weapon_fire_resource(world, &sprites);
+
         intialize_arena(world, &arena_properties, &sprites, &world_textures);
         intialize_player(world, &arena_properties, &sprites);
 
@@ -103,9 +111,13 @@ impl<'a, 'b> SimpleState for MyState<'a, 'b> {
         dispatcher_builder.add(
             AimWeaponSystem::default(), "aim_weapon_system", &[]);
         dispatcher_builder.add(
+            FireWeaponsSystem::default(), "fire_weapon_system", &[]);
+        dispatcher_builder.add(
             HitboxCollisionDetection{collision_ids: HashMap::new()}, "hitbox_collision_system", &[]);
         dispatcher_builder.add(
             HitboxImmovableCollisionDetection::default(), "hitbox_immovable_collision_system", &[]);
+        dispatcher_builder.add(
+            MoveWeaponFireSystem::default(), "move_weapon_fire_system", &[]);
 
         
         // Build and setup the `Dispatcher`.
@@ -141,90 +153,6 @@ impl<'a, 'b> SimpleState for MyState<'a, 'b> {
 
         Trans::None
     }
-}
-
-
-/// Loads and splits the `logo.png` image asset into 3 sprites,
-/// which will then be assigned to entities for rendering them.
-///
-/// The provided `world` is used to retrieve the resource loader.
-fn load_sprites(world: &mut World) -> Vec<SpriteRender> {
-    // Load the texture for our sprites. We'll later need to
-    // add a handle to this texture to our `SpriteRender`s, so
-    // we need to keep a reference to it.
-    let texture_handle = {
-        let loader = world.read_resource::<Loader>();
-        let texture_storage = world.read_resource::<AssetStorage<Texture>>();
-        loader.load(
-            "textures/rally_spritesheet.png",
-            ImageFormat::default(),
-            (),
-            &texture_storage,
-        )
-    };
-
-    // Load the spritesheet definition file, which contains metadata on our
-    // spritesheet texture.
-    let sheet_handle = {
-        let loader = world.read_resource::<Loader>();
-        let sheet_storage = world.read_resource::<AssetStorage<SpriteSheet>>();
-        loader.load(
-            "textures/rally_spritesheet.ron",
-            SpriteSheetFormat(texture_handle),
-            (),
-            &sheet_storage,
-        )
-    };
-
-    // Create our sprite renders. Each will have a handle to the texture
-    // that it renders from. The handle is safe to clone, since it just
-    // references the asset.
-    (0..7)
-        .map(|i| SpriteRender {
-            sprite_sheet: sheet_handle.clone(),
-            sprite_number: i,
-        })
-        .collect()
-}
-
-
-fn load_world_textures(world: &mut World) -> Vec<SpriteRender> {
-    // Load the texture for our sprites. We'll later need to
-    // add a handle to this texture to our `SpriteRender`s, so
-    // we need to keep a reference to it.
-    let texture_handle = {
-        let loader = world.read_resource::<Loader>();
-        let texture_storage = world.read_resource::<AssetStorage<Texture>>();
-        loader.load(
-            "textures/rally_world_texture_sheet.png",
-            ImageFormat::default(),
-            (),
-            &texture_storage,
-        )
-    };
-
-    // Load the spritesheet definition file, which contains metadata on our
-    // spritesheet texture.
-    let sheet_handle = {
-        let loader = world.read_resource::<Loader>();
-        let sheet_storage = world.read_resource::<AssetStorage<SpriteSheet>>();
-        loader.load(
-            "textures/rally_world_texture_sheet.ron",
-            SpriteSheetFormat(texture_handle),
-            (),
-            &sheet_storage,
-        )
-    };
-
-    // Create our sprite renders. Each will have a handle to the texture
-    // that it renders from. The handle is safe to clone, since it just
-    // references the asset.
-    (0..1)
-        .map(|i| SpriteRender {
-            sprite_sheet: sheet_handle.clone(),
-            sprite_number: i,
-        })
-        .collect()
 }
 
 

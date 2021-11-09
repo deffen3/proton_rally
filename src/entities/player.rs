@@ -9,7 +9,7 @@ use std::f32::consts::PI;
 
 use crate::components::{
     Arena, Movable, CollisionType, Mass,
-    Player, PlayerState, Hitbox, HitboxShape, Weapon};
+    Player, PlayerState, Hitbox, HitboxShape, Weapon, WeaponAimChild};
 
 pub fn intialize_player(
     world: &mut World,
@@ -37,6 +37,11 @@ pub fn intialize_player(
             .with(Movable::new(CollisionType::Bounce))
             .with(Mass::new(1.0))
             .with(Hitbox{width: 16.0 * x_scale, height: 16.0 * y_scale, shape: HitboxShape::Circle})
+            .with(Weapon{
+                cooldown_timer: 0.0,
+                cooldown_reset: 0.333,
+                shot_speed: 400.0,
+                angle: player_rotation})
             .build();
 
         //Create player proton cannon weapon
@@ -51,7 +56,7 @@ pub fn intialize_player(
             .with(sprite_sheet_handle[6].clone())
             .with(Transparent)
             .with(Parent{entity: proton_body})
-            .with(Weapon{id: player_id, angle: player_rotation})
+            .with(WeaponAimChild{id: player_id, angle: player_rotation})
             .build();
     }
 }

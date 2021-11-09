@@ -21,6 +21,7 @@ mod state;
 mod entities;
 mod components;
 mod systems;
+mod resources;
 
 
 fn load_ron_asset<T: DeserializeOwned>(path: &[&str]) -> T {
