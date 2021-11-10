@@ -2,7 +2,7 @@ use amethyst::{
     core::{Time, Transform},
     derive::SystemDesc,
     ecs::{
-        Join, Read, System, SystemData, World,
+        Entities, Join, Read, System, SystemData, World,
         WriteStorage, ReadStorage,
     },
 };
@@ -22,6 +22,7 @@ pub struct HitboxImmovableCollisionDetection {
 
 impl<'s> System<'s> for HitboxImmovableCollisionDetection {
     type SystemData = (
+        Entities<'s>,
         ReadStorage<'s, Hitbox>,
         WriteStorage<'s, Movable>,
         ReadStorage<'s, ArenaElement>,
@@ -36,6 +37,7 @@ impl<'s> System<'s> for HitboxImmovableCollisionDetection {
     fn run(
         &mut self,
         (
+            entities,
             hitboxes,
             mut movables,
             arena_elements,
@@ -47,7 +49,8 @@ impl<'s> System<'s> for HitboxImmovableCollisionDetection {
         let dt = time.delta_seconds();
 
         // For movable, mass, hitboxes
-        for (movable, _mass, hitbox, transform) in (
+        for (entity, movable, mass, hitbox, transform) in (
+            &entities,
             &mut movables,
             &masses,
             &hitboxes,
@@ -55,7 +58,6 @@ impl<'s> System<'s> for HitboxImmovableCollisionDetection {
         )
             .join()
         {
-            let wall_hit_bounce_decel_pct = 0.40;
             let collision_margin = 5.0;
 
             // Get Current Positions, Velocities, and Angles
@@ -135,8 +137,10 @@ impl<'s> System<'s> for HitboxImmovableCollisionDetection {
                     Some(cd) => {
                         let contact_pt = cd.world2;
 
+                        log::info!("immovable collision {:?}",entity.id());
+
                         match movable.collision_type {
-                            CollisionType::Bounce => {
+                            CollisionType::Bounce {bounces, sticks} => {
                                 let (new_dx, new_dy) = calc_bounce_angle(
                                     immovable_x - contact_pt.x,
                                     immovable_y - contact_pt.y,
@@ -147,17 +151,40 @@ impl<'s> System<'s> for HitboxImmovableCollisionDetection {
                                     movable.dy.clone(),
                                 );
 
-                                movable.dx = new_dx * wall_hit_bounce_decel_pct;
-                                movable.dy = new_dy * wall_hit_bounce_decel_pct;
+                                match (bounces, sticks) {
+                                    (Some(b), _) if b > 0 => { //bounce
+                                        movable.collision_type = CollisionType::Bounce {bounces: Some(b-1), sticks};
+                                    
+                                        movable.dx = new_dx * (1.0 as f32).exp().powf(-0.5*mass.mass);
+                                        movable.dy = new_dy * (1.0 as f32).exp().powf(-0.5*mass.mass);
 
-                                let movable_x = transform.translation().x;
-                                let movable_y = transform.translation().y;
-                                transform.set_translation_x(movable_x - (contact_pt.x - movable_x) / 10. + movable.dx * dt);
-                                transform.set_translation_y(movable_y - (contact_pt.y - movable_y) / 10. + movable.dy * dt);
-                            },
-                            CollisionType::_Stick => {
-                                movable.dx = 0.0;
-                                movable.dy = 0.0;
+                                        let movable_x = transform.translation().x;
+                                        let movable_y = transform.translation().y;
+                                        transform.set_translation_x(movable_x - (contact_pt.x - movable_x) / 10. + movable.dx * dt);
+                                        transform.set_translation_y(movable_y - (contact_pt.y - movable_y) / 10. + movable.dy * dt);
+                                    },
+                                    (Some(b), false) if b == 0 => { //all bounces used up, now dissappears
+                                        movable.dx = 0.0;
+                                        movable.dy = 0.0;
+
+                                        log::info!("delete {:?}",entity.id());
+                                        let _ = entities.delete(entity);
+                                    },
+                                    (Some(b), true) if b == 0 => { //all bounces used up, now sticks
+                                        movable.dx = 0.0;
+                                        movable.dy = 0.0;
+                                    },
+                                    (None, _) => { //infinite bounces
+                                        movable.dx = new_dx * (1.0 as f32).exp().powf(-0.5*mass.mass);
+                                        movable.dy = new_dy * (1.0 as f32).exp().powf(-0.5*mass.mass);
+
+                                        let movable_x = transform.translation().x;
+                                        let movable_y = transform.translation().y;
+                                        transform.set_translation_x(movable_x - (contact_pt.x - movable_x) / 10. + movable.dx * dt);
+                                        transform.set_translation_y(movable_y - (contact_pt.y - movable_y) / 10. + movable.dy * dt);
+                                    },
+                                    _ => {}
+                                }
                             },
                             _ => {}
                         }

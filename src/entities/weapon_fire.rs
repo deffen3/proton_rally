@@ -32,7 +32,7 @@ pub fn fire_weapon(
         let weapon_fire_movable = Movable{
             dx: weapon.shot_speed * -weapon.angle.sin(),
             dy: weapon.shot_speed * weapon.angle.cos(),
-            collision_type: CollisionType::Bounce,
+            collision_type: CollisionType::Bounce{bounces: Some(3), sticks: false},
             prevent_collision_id: Some(entity_id),
         };
 
@@ -45,9 +45,7 @@ pub fn fire_weapon(
         shape: crate::components::HitboxShape::Circle,
     };
 
-    let weapon_fire_mass = Mass{
-        mass: 0.1,
-    };
+    let weapon_fire_mass = Mass{mass: 0.01};
 
     let weapon_sprite = weapon_fire_resource.player_1_weapon_fire.clone();
 

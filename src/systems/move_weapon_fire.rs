@@ -36,7 +36,7 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
     ) {
         let dt = time.delta_seconds();
 
-        for (_entity, _weapon_fire, movable, transform) in (
+        for (entity, _weapon_fire, movable, transform) in (
             &entities,
             &weapon_fires,
             &movables,
@@ -44,6 +44,8 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
         )
             .join()
         {
+            log::info!("moving fire {:?}",entity.id());
+
             // Apply physics updates to Transform
             transform.prepend_translation_x(movable.dx * dt);
             transform.prepend_translation_y(movable.dy * dt);

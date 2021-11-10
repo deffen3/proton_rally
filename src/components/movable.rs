@@ -14,9 +14,7 @@ use crate::components::{Hitbox, HitboxShape};
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum CollisionType {
     _Through,
-    Bounce,
-    //Dissappear,
-    _Stick,
+    Bounce {bounces: Option<i8>, sticks: bool},
 }
 
 pub struct Movable {

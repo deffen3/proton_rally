@@ -170,26 +170,54 @@ impl<'s> System<'s> for HitboxCollisionDetection {
         {
             if let Some(contact_pts) = movable_collisions.get(&entity.id()) {
 
+                log::info!("movable collision {:?}",entity.id());
+
                 for contact_pt in contact_pts.iter() {
                     let movable_x = transform.translation().x;
                     let movable_y = transform.translation().y;
 
                     match movable.collision_type {
-                        CollisionType::Bounce => {
-                            // let impulse = COLLISION_LOSS * (2.0 * movable_weight)
-                            //     / (movable_weight + other_movable_weight);
+                        CollisionType::Bounce {bounces, sticks} => {
+                            match (bounces, sticks) {
+                                (Some(b), _) if b > 0 => { //bounce
+                                    movable.collision_type = CollisionType::Bounce {bounces: Some(b-1), sticks};
+                                
+                                    // let impulse = COLLISION_LOSS * (2.0 * movable_weight)
+                                    //     / (movable_weight + other_movable_weight);
 
-                            let impulse = 10.0;
+                                    let impulse = 10.0;
 
-                            movable.dx = movable.dx - impulse * (contact_pt.x - movable_x);
-                            movable.dy = movable.dy - impulse * (contact_pt.y - movable_y);
+                                    movable.dx = movable.dx - impulse * (contact_pt.x - movable_x);
+                                    movable.dy = movable.dy - impulse * (contact_pt.y - movable_y);
 
-                            transform.set_translation_x(movable_x + movable.dx * dt);
-                            transform.set_translation_y(movable_y + movable.dy * dt);
-                        },
-                        CollisionType::_Stick => {
-                            movable.dx = 0.0;
-                            movable.dy = 0.0;
+                                    transform.set_translation_x(movable_x + movable.dx * dt);
+                                    transform.set_translation_y(movable_y + movable.dy * dt);
+                                },
+                                (Some(b), false) if b == 0 => { //all bounces used up, now dissappears
+                                    movable.dx = 0.0;
+                                    movable.dy = 0.0;
+    
+                                    log::info!("delete {:?}",entity.id());
+                                    let _ = entities.delete(entity);
+                                },
+                                (Some(b), true) if b == 0 => { //all bounces used up, now sticks
+                                    movable.dx = 0.0;
+                                    movable.dy = 0.0;
+                                },
+                                (None, _) => { //infinite bounces
+                                    // let impulse = COLLISION_LOSS * (2.0 * movable_weight)
+                                    //     / (movable_weight + other_movable_weight);
+
+                                    let impulse = 10.0;
+
+                                    movable.dx = movable.dx - impulse * (contact_pt.x - movable_x);
+                                    movable.dy = movable.dy - impulse * (contact_pt.y - movable_y);
+
+                                    transform.set_translation_x(movable_x + movable.dx * dt);
+                                    transform.set_translation_y(movable_y + movable.dy * dt);
+                                },
+                                _ => {}
+                            }
                         },
                         _ => {}
                     }
