@@ -39,32 +39,32 @@ List((
             height: 50,
         ),
         ( //6) proton cannon
-            x: 64,
+            x: 68,
             y: 0,
             width: 11,
-            height: 18, //fake height to help with rotation axis, real height = 6
+            height: 26, //fake height to help with rotation axis, real height = 6
         ),
         ( //7) player 1 shot
-            x: 61,
-            y: 18,
+            x: 64,
+            y: 0,
             width: 4,
             height: 4,
         ),
         ( //8) player 2 shot
-            x: 61,
-            y: 22,
+            x: 64,
+            y: 4,
             width: 4,
             height: 4,
         ),
         ( //9) player 3 shot
-            x: 61,
-            y: 26,
+            x: 64,
+            y: 8,
             width: 4,
             height: 4,
         ),
         ( //10) player 4 shot
-            x: 61,
-            y: 30,
+            x: 64,
+            y: 12,
             width: 4,
             height: 4,
         ),
