@@ -13,6 +13,7 @@ use crate::resources::WeaponFireResource;
 pub fn fire_weapon(
     entities: &Entities,
     entity_id: u32,
+    player_id: usize,
     player_transform: &Transform,
     weapon: &Weapon,
     weapon_fire_resource: &ReadExpect<WeaponFireResource>,
@@ -47,7 +48,13 @@ pub fn fire_weapon(
 
     let weapon_fire_mass = Mass{mass: 0.01};
 
-    let weapon_sprite = weapon_fire_resource.player_1_weapon_fire.clone();
+    let weapon_sprite = match player_id {
+        0 => weapon_fire_resource.player_1_weapon_fire.clone(),
+        1 => weapon_fire_resource.player_2_weapon_fire.clone(),
+        2 => weapon_fire_resource.player_3_weapon_fire.clone(),
+        3 => weapon_fire_resource.player_4_weapon_fire.clone(),
+        _ => weapon_fire_resource.player_1_weapon_fire.clone(),
+    };
 
     lazy_update.insert(weapon_fire_entity, weapon_fire);
     lazy_update.insert(weapon_fire_entity, weapon_fire_movable);

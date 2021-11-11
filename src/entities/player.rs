@@ -33,10 +33,15 @@ pub fn intialize_player(
             .with(player_transform)
             .with(sprite_sheet_handle[player_id].clone())
             .with(Transparent)
-            .with(Player{id: player_id, state: PlayerState::Active})
-            .with(Movable::new(CollisionType::Bounce{bounces:Some(1), sticks:false}))
+            .with(Player{
+                id: player_id,
+                state: PlayerState::Active})
+            .with(Movable::new(CollisionType::Bounce{bounces:None, sticks:false}))
             .with(Mass::new(1.0))
-            .with(Hitbox{width: 16.0 * x_scale, height: 16.0 * y_scale, shape: HitboxShape::Circle})
+            .with(Hitbox{
+                width: 16.0 * x_scale,
+                height: 16.0 * y_scale,
+                shape: HitboxShape::Circle})
             .with(Weapon{
                 cooldown_timer: 0.0,
                 cooldown_reset: 0.333,

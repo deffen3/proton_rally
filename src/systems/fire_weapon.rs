@@ -64,6 +64,7 @@ impl<'s> System<'s> for FireWeaponsSystem {
                     fire_weapon(
                         &entities,
                         entity.id(),
+                        player.id,
                         &transform,
                         &weapon,
                         &weapon_fire_resource,

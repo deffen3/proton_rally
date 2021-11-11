@@ -46,7 +46,41 @@ impl<'s> System<'s> for HitboxCollisionDetection {
     ) {
         let dt = time.delta_seconds();
 
+        // Keep track of current entity IDs involved, 
+        // as any ID that is not current needs to be removed from collision_ids
+        let mut current_ids: Vec<u32> = vec![];
+
         // For movable, mass, hitboxes
+        for (entity, _movable, _mass, _hitbox, _transform) in (
+            &entities,
+            &movables,
+            &masses,
+            &hitboxes,
+            &transforms,
+        )
+            .join()
+        {
+            if !current_ids.contains(&entity.id()) {
+                current_ids.push(entity.id());
+            }
+        }
+
+        let mut old_ids_marked_for_removal: Vec<(u32, u32)> = vec![];
+
+        for ((e1_id, e2_id), _) in self.collision_ids.iter() {
+            if !current_ids.contains(&e1_id) || !current_ids.contains(&e2_id) {
+                if !old_ids_marked_for_removal.contains(&(*e1_id, *e2_id)) {
+                    old_ids_marked_for_removal.push((*e1_id, *e2_id));
+                }
+            }
+        }
+
+        for (e1_id, e2_id) in old_ids_marked_for_removal.iter() {
+            self.collision_ids.remove( &(*e1_id, *e2_id) );
+        }
+
+
+        // For movable, mass, hitboxes: perform collision detection logic
         for (entity, movable, _mass, hitbox, transform) in (
             &entities,
             &movables,
@@ -113,15 +147,18 @@ impl<'s> System<'s> for HitboxCollisionDetection {
                         (None, None) => {}, // No current collision, no previous collision => do nothing
                         (Some(_), Some(_)) => { 
                             //Collision still in progress, repeat collision detected => do nothing
+                            log::info!("movable collision arb none {:?}, {:?}", entity.id(), entity2.id());
                         }
                         (Some(curr_collision), None) => { 
                             //New collision => calculate reaction
                             let contact_pt = curr_collision.world2;
                             self.collision_ids.insert( (entity.id(), entity2.id()), contact_pt);
+                            log::info!("movable collision arb new {:?}, {:?}", entity.id(), entity2.id());
                         }
                         (None, Some(_)) => { 
                             // Previous collision still exists, need to "clear" the past collision
                             self.collision_ids.remove( &(entity.id(), entity2.id()) );
+                            log::info!("movable collision arb rem prev {:?}, {:?}", entity.id(), entity2.id());
                         }                  
                     }
                 }
@@ -132,6 +169,8 @@ impl<'s> System<'s> for HitboxCollisionDetection {
         let mut movable_collisions: HashMap<u32, Vec<Point<f32, U2>>> = HashMap::new();
 
         for ((e1_id, e2_id), contact_pt) in self.collision_ids.iter() {
+            log::info!("movable collision {:?}, {:?}", e1_id, e2_id);
+
             {
                 let movable1_contact_pts = movable_collisions.get_mut(&e1_id);
 
@@ -170,7 +209,7 @@ impl<'s> System<'s> for HitboxCollisionDetection {
         {
             if let Some(contact_pts) = movable_collisions.get(&entity.id()) {
 
-                log::info!("movable collision {:?}",entity.id());
+                log::info!("movable collision res {:?}",entity.id());
 
                 for contact_pt in contact_pts.iter() {
                     let movable_x = transform.translation().x;

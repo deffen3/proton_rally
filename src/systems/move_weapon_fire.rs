@@ -44,7 +44,7 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
         )
             .join()
         {
-            log::info!("moving fire {:?}",entity.id());
+            log::info!("moving fire {:?} {:?} {:?} {:?}",entity.id(), movable.dx, movable.dy, dt);
 
             // Apply physics updates to Transform
             transform.prepend_translation_x(movable.dx * dt);
