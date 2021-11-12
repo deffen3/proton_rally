@@ -11,8 +11,6 @@ use amethyst::{
     utils::removal::Removal,
 };
 
-use std::collections::HashMap;
-
 use crate::{components::{WeaponAimChild, WeaponFire}, entities::{
     build_arena_store, intialize_arena, initialize_camera, intialize_player}};
 use crate::components::{
@@ -113,7 +111,7 @@ impl<'a, 'b> SimpleState for MyState<'a, 'b> {
         dispatcher_builder.add(
             FireWeaponsSystem::default(), "fire_weapon_system", &[]);
         dispatcher_builder.add(
-            HitboxCollisionDetection{collision_ids: HashMap::new()}, "hitbox_collision_system", &[]);
+            HitboxCollisionDetection::default(), "hitbox_collision_system", &[]);
         dispatcher_builder.add(
             HitboxImmovableCollisionDetection::default(), "hitbox_immovable_collision_system", &[]);
         dispatcher_builder.add(

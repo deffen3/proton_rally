@@ -11,13 +11,19 @@ use std::collections::HashMap;
 
 extern crate nalgebra as na;
 use na::{Point, U2};
-use ncollide2d::query::{self, Proximity};
+use na::{Isometry2, Point2, Vector2};
+use ncollide2d::query::{self, Proximity, Ray, RayCast};
 
 use crate::components::{Movable, get_movable_shape_pos, CollisionType, Mass, Hitbox};
 
-#[derive(SystemDesc)]
+
+pub const PRE_IMPACT_DT_STEPS: f32 = 1.1;
+pub const TOI_SPEED_TRIGGER: f32 = 200.0;
+
+#[derive(SystemDesc, Default)]
 pub struct HitboxCollisionDetection {
-    pub collision_ids: HashMap<(u32, u32), Point<f32, U2>>,
+    pub collision_ids: HashMap<(u32, u32), Point<f32, U2>>, //track existing collisions, key: entity IDs, values: contact point
+    pub future_collision_ids_toi: HashMap<(u32, u32), f32>, //track future collisions, key: entity IDs, values: time-of-impact
 }
 
 impl<'s> System<'s> for HitboxCollisionDetection {
@@ -80,6 +86,20 @@ impl<'s> System<'s> for HitboxCollisionDetection {
         }
 
 
+        // Prep future collision toi for next loop
+        // Check for a future toi collision
+        let mut toi_to_update: Vec<((u32, u32), f32)> = vec![];
+        let mut toi_to_remove: Vec<(u32, u32)> = vec![];
+
+        for (key, toi) in self.future_collision_ids_toi.iter() {
+            //self.future_collision_ids_toi.insert(*key, *toi - dt);
+            toi_to_update.push((*key, *toi));
+        }
+
+        for (key, toi) in toi_to_update.iter() {
+            self.future_collision_ids_toi.insert(*key, toi-dt);
+        }
+
         // For movable, mass, hitboxes: perform collision detection logic
         for (entity, movable, _mass, hitbox, transform) in (
             &entities,
@@ -90,9 +110,14 @@ impl<'s> System<'s> for HitboxCollisionDetection {
         )
             .join()
         {
-            let collision_margin = 5.0;
-
             // Get Current Positions, Velocities, and Angles
+
+            let abs_vel = (movable.dx.powi(2) + movable.dy.powi(2)).sqrt();
+
+            let collision_margin = match abs_vel {
+                abs_vel if abs_vel > TOI_SPEED_TRIGGER => abs_vel * dt * PRE_IMPACT_DT_STEPS,
+                _ => 0.0
+            };
 
             let (movable_collider_pos,
                 movable_collider_shape) = get_movable_shape_pos(transform, hitbox);
@@ -117,11 +142,39 @@ impl<'s> System<'s> for HitboxCollisionDetection {
                 };
 
                 if (entity.id() != entity2.id()) && collision_avoid_id_check1 && collision_avoid_id_check2 {
+
+                    // Check for a future toi collision
+                    let future_collision_toi = self.future_collision_ids_toi.get_mut( &(entity.id(), entity2.id()) );
+
+                    // Update Movable Collider Position based on toi
+                    let movable_collider_pos_toi = match future_collision_toi {
+                        Some(toi) if *toi < 0.0 => { //toi expired, impact
+                            log::info!("future collision toi now expired {:?}, {:?}, {:?}", entity.id(), entity2.id(), toi);
+
+                            //self.future_collision_ids_toi.remove( &(entity.id(), entity2.id()) );
+                            toi_to_remove.push((entity.id(), entity2.id()));
+
+                            // Rewind x and y position based on velocity and toi
+                            let x = transform.translation().x - movable.dx*(*toi);
+                            let y = transform.translation().y - movable.dy*(*toi);
+                        
+                            let rotation = transform.rotation();
+                            let (_, _, angle) = rotation.euler_angles();
+                        
+                            // New updated toi position
+                            Isometry2::new(Vector2::new(x, y), angle)
+                        },
+                        _ => {
+                            movable_collider_pos
+                        }
+                    };
+
+
                     let (movable2_collider_pos,
                         movable2_collider_shape) = get_movable_shape_pos(transform2, hitbox2);
 
                     let proximity_detected = query::proximity(
-                        &movable_collider_pos,
+                        &movable_collider_pos_toi,
                         &movable_collider_shape,
                         &movable2_collider_pos,
                         &movable2_collider_shape,
@@ -130,14 +183,59 @@ impl<'s> System<'s> for HitboxCollisionDetection {
 
                     let contact_data = match proximity_detected {
                         Proximity::Intersecting => {
+                            log::info!("Intersecting: {:?}, {:?}", entity.id(), entity2.id());
+
                             query::contact(
-                                &movable_collider_pos,
+                                &movable_collider_pos_toi,
                                 &movable_collider_shape,
                                 &movable2_collider_pos,
                                 &movable2_collider_shape,
                                 0.0,
                             )
                         },
+                        Proximity::WithinMargin => {
+                            log::info!("WithinMargin: {:?}, {:?}", entity.id(), entity2.id());
+
+                            let fire_ray = Ray::new(
+                                Point2::new(transform.translation().x, transform.translation().y),
+                                Vector2::new(movable.dx, movable.dy),
+                            );
+
+                            // Time of impact
+                            let toi = movable2_collider_shape.toi_with_ray(
+                                &movable2_collider_pos,
+                                &fire_ray,
+                                dt * PRE_IMPACT_DT_STEPS,
+                                true,
+                            );
+
+                            if let Some(toi) = toi {
+                                self.future_collision_ids_toi.insert( (entity.id(), entity2.id()), toi);
+
+                                log::info!("future collision toi {:?}, {:?}, {:?}", entity.id(), entity2.id(), toi);
+                            }
+
+
+                            // Look backwards as well
+                            let fire_ray = Ray::new(
+                                Point2::new(transform.translation().x, transform.translation().y),
+                                Vector2::new(-movable.dx, -movable.dy),
+                            );
+
+                            // Time of impact
+                            let toi = movable2_collider_shape.toi_with_ray(
+                                &movable2_collider_pos,
+                                &fire_ray,
+                                dt * PRE_IMPACT_DT_STEPS,
+                                true,
+                            );
+
+                            if let Some(toi) = toi {
+                                log::info!("future collision -toi {:?}, {:?}, {:?}", entity.id(), entity2.id(), toi);
+                            }
+
+                            None
+                        }
                         _ => None,
                     };
 
@@ -163,7 +261,8 @@ impl<'s> System<'s> for HitboxCollisionDetection {
                     }
                 }
             }
-        }
+        }       
+
 
         // Find collision contact pts, but separated out by each entity id
         let mut movable_collisions: HashMap<u32, Vec<Point<f32, U2>>> = HashMap::new();
@@ -262,6 +361,11 @@ impl<'s> System<'s> for HitboxCollisionDetection {
                     }
                 }
             }
+        }
+
+        // Clean-up future collision toi for next loop
+        for key in toi_to_remove.iter() {
+            self.future_collision_ids_toi.remove(key);
         }
     }
 }
