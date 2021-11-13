@@ -22,8 +22,10 @@ pub const TOI_SPEED_TRIGGER: f32 = 200.0;
 
 #[derive(SystemDesc, Default)]
 pub struct HitboxCollisionDetection {
-    pub collision_ids: HashMap<(u32, u32), Point<f32, U2>>, //track existing collisions, key: entity IDs, values: contact point
-    pub future_collision_ids_toi: HashMap<(u32, u32), f32>, //track future collisions, key: entity IDs, values: time-of-impact
+    //track existing collisions, key: entity IDs, values: contact point, masses, velocities
+    pub collision_ids: HashMap<(u32, u32), (Point<f32, U2>, f32, f32, f32, f32)>, 
+    //track future collisions, key: entity IDs, values: time-of-impact
+    pub future_collision_ids_toi: HashMap<(u32, u32), f32>, 
 }
 
 impl<'s> System<'s> for HitboxCollisionDetection {
@@ -101,7 +103,7 @@ impl<'s> System<'s> for HitboxCollisionDetection {
         }
 
         // For movable, mass, hitboxes: perform collision detection logic
-        for (entity, movable, _mass, hitbox, transform) in (
+        for (entity, movable, mass, hitbox, transform) in (
             &entities,
             &movables,
             &masses,
@@ -123,7 +125,7 @@ impl<'s> System<'s> for HitboxCollisionDetection {
                 movable_collider_shape) = get_movable_shape_pos(transform, hitbox);
 
             // For all other movable, mass, hitboxes
-            for (entity2, movable2, _mass2, hitbox2, transform2) in (
+            for (entity2, movable2, mass2, hitbox2, transform2) in (
                 &entities,
                 &movables,
                 &masses,
@@ -142,7 +144,6 @@ impl<'s> System<'s> for HitboxCollisionDetection {
                 };
 
                 if (entity.id() != entity2.id()) && collision_avoid_id_check1 && collision_avoid_id_check2 {
-
                     // Check for a future toi collision
                     let future_collision_toi = self.future_collision_ids_toi.get_mut( &(entity.id(), entity2.id()) );
 
@@ -250,7 +251,9 @@ impl<'s> System<'s> for HitboxCollisionDetection {
                         (Some(curr_collision), None) => { 
                             //New collision => calculate reaction
                             let contact_pt = curr_collision.world2;
-                            self.collision_ids.insert( (entity.id(), entity2.id()), contact_pt);
+                            self.collision_ids.insert(
+                                 (entity.id(), entity2.id()),
+                                 (contact_pt, mass.mass, mass2.mass, movable.dx - movable2.dx, movable.dy - movable2.dy));
                             log::info!("movable collision arb new {:?}, {:?}", entity.id(), entity2.id());
                         }
                         (None, Some(_)) => { 
@@ -265,9 +268,9 @@ impl<'s> System<'s> for HitboxCollisionDetection {
 
 
         // Find collision contact pts, but separated out by each entity id
-        let mut movable_collisions: HashMap<u32, Vec<Point<f32, U2>>> = HashMap::new();
+        let mut movable_collisions: HashMap<u32, Vec<(Point<f32, U2>, f32, f32, f32, f32)>> = HashMap::new();
 
-        for ((e1_id, e2_id), contact_pt) in self.collision_ids.iter() {
+        for ((e1_id, e2_id), (contact_pt, m1, m2, dx, dy)) in self.collision_ids.iter() {
             log::info!("movable collision {:?}, {:?}", e1_id, e2_id);
 
             {
@@ -275,10 +278,10 @@ impl<'s> System<'s> for HitboxCollisionDetection {
 
                 match movable1_contact_pts {
                     None => {
-                        movable_collisions.insert(*e1_id, vec!(*contact_pt));
+                        movable_collisions.insert(*e1_id, vec!((*contact_pt, *m1, *m2, *dx, *dy)));
                     },
-                    Some(contact_pts) => {
-                        contact_pts.push(*contact_pt);
+                    Some(values) => {
+                        values.push((*contact_pt, *m1, *m2, *dx, *dy));
                     }
                 }
             }
@@ -287,10 +290,10 @@ impl<'s> System<'s> for HitboxCollisionDetection {
                 let movable2_contact_pts = movable_collisions.get_mut(&e2_id);
                 match movable2_contact_pts {
                     None => {
-                        movable_collisions.insert(*e2_id, vec!(*contact_pt));
+                        movable_collisions.insert(*e2_id, vec!((*contact_pt, *m1, *m2, *dx, *dy)));
                     },
-                    Some(contact_pts) => {
-                        contact_pts.push(*contact_pt);
+                    Some(values) => {
+                        values.push((*contact_pt, *m2, *m1, -*dx, -*dy));
                     }
                 }
             }
@@ -306,27 +309,32 @@ impl<'s> System<'s> for HitboxCollisionDetection {
         )
             .join()
         {
-            if let Some(contact_pts) = movable_collisions.get(&entity.id()) {
-
+            if let Some(contact_pt_and_masses) = movable_collisions.get(&entity.id()) {
                 log::info!("movable collision res {:?}",entity.id());
 
-                for contact_pt in contact_pts.iter() {
+                for (contact_pt, m1, m2, _dx, _dy) in contact_pt_and_masses.iter() {
                     let movable_x = transform.translation().x;
                     let movable_y = transform.translation().y;
+
+                    let contact_diff_x = contact_pt.x - movable_x;
+                    let contact_diff_y = contact_pt.y - movable_y;
+
+                    let contact_diff_angle = contact_diff_y.atan2(contact_diff_x);
+                    let contact_diff_pct_x = contact_diff_angle.cos();
+                    let contact_diff_pct_y = contact_diff_angle.sin();
+
+                    let _mass_ratio = 1.0 - (m1 / (m1/m2));
 
                     match movable.collision_type {
                         CollisionType::Bounce {bounces, sticks} => {
                             match (bounces, sticks) {
                                 (Some(b), _) if b > 0 => { //bounce
                                     movable.collision_type = CollisionType::Bounce {bounces: Some(b-1), sticks};
-                                
-                                    // let impulse = COLLISION_LOSS * (2.0 * movable_weight)
-                                    //     / (movable_weight + other_movable_weight);
-
-                                    let impulse = 10.0;
-
-                                    movable.dx = movable.dx - impulse * (contact_pt.x - movable_x);
-                                    movable.dy = movable.dy - impulse * (contact_pt.y - movable_y);
+                            
+                                    //movable.dx = movable.dx + dx*(mass_ratio * contact_diff_pct_x);
+                                    //movable.dy = movable.dy + dy*(mass_ratio * contact_diff_pct_y);
+                                    movable.dx = movable.dx - 10.0 * contact_diff_pct_x;
+                                    movable.dy = movable.dy - 10.0 * contact_diff_pct_y;
 
                                     transform.set_translation_x(movable_x + movable.dx * dt);
                                     transform.set_translation_y(movable_y + movable.dy * dt);
@@ -343,13 +351,11 @@ impl<'s> System<'s> for HitboxCollisionDetection {
                                     movable.dy = 0.0;
                                 },
                                 (None, _) => { //infinite bounces
-                                    // let impulse = COLLISION_LOSS * (2.0 * movable_weight)
-                                    //     / (movable_weight + other_movable_weight);
 
-                                    let impulse = 10.0;
-
-                                    movable.dx = movable.dx - impulse * (contact_pt.x - movable_x);
-                                    movable.dy = movable.dy - impulse * (contact_pt.y - movable_y);
+                                    //movable.dx = movable.dx + dx*(mass_ratio * contact_diff_pct_x);
+                                    //movable.dy = movable.dy + dy*(mass_ratio * contact_diff_pct_y);
+                                    movable.dx = movable.dx - 10.0 * contact_diff_pct_x;
+                                    movable.dy = movable.dy - 10.0 * contact_diff_pct_y;
 
                                     transform.set_translation_x(movable_x + movable.dx * dt);
                                     transform.set_translation_y(movable_y + movable.dy * dt);

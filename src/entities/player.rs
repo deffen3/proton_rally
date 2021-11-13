@@ -45,7 +45,7 @@ pub fn intialize_player(
             .with(Weapon{
                 cooldown_timer: 0.0,
                 cooldown_reset: 0.333,
-                shot_speed: 1000.0,
+                shot_speed: 300.0,
                 angle: player_rotation})
             .build();
 

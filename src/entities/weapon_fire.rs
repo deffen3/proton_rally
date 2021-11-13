@@ -33,7 +33,7 @@ pub fn fire_weapon(
         let weapon_fire_movable = Movable{
             dx: weapon.shot_speed * -weapon.angle.sin(),
             dy: weapon.shot_speed * weapon.angle.cos(),
-            collision_type: CollisionType::Bounce{bounces: Some(3), sticks: false},
+            collision_type: CollisionType::Bounce{bounces: Some(2), sticks: false},
             prevent_collision_id: Some(entity_id),
         };
 
