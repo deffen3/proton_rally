@@ -1,11 +1,7 @@
-use amethyst::{
-    core::{Time},
-    derive::SystemDesc,
-    ecs::{
+use amethyst::{core::{Time}, derive::SystemDesc, ecs::{
         Join, Read, System, SystemData, World,
         WriteStorage,
-    },
-    input::{InputHandler, StringBindings},
+    }, input::{InputHandler, StringBindings}
 };
 
 use crate::components::{Movable, Player, Shield, Weapon};

@@ -28,6 +28,8 @@ pub fn intialize_player(
         player_transform.set_translation_xyz(player_spawn_point.x, player_spawn_point.y, 0.0);
         player_transform.set_scale(Vector3::new(x_scale, y_scale, 0.0));
 
+        let power = 9;
+
         let proton_body = world
             .create_entity()
             .with(player_transform)
@@ -37,10 +39,10 @@ pub fn intialize_player(
                 id: player_id,
                 state: PlayerState::Active,
                 system_adjust_cooldown_timer: 0.0,
-                system_adjust_cooldown_reset: 0.3,
+                system_adjust_cooldown_reset: 0.1,
                 aim_control_state: AimControlState::Locked,
                 aim_mode_cooldown_timer: 0.0,
-                aim_mode_cooldown_reset: 0.3,
+                aim_mode_cooldown_reset: 0.1,
             })
             .with(Movable::new(
                 9,
@@ -54,14 +56,14 @@ pub fn intialize_player(
             .with(Shield{
                 cooldown_timer: 0.0,
                 cooldown_reset: 0.333,
-                power: 9,
-                power_base: 9,
+                power: power,
+                power_base: power,
                 angle: player_rotation})
             .with(Weapon{
                 cooldown_timer: 0.0,
                 cooldown_reset: 0.333,
-                power: 9,
-                power_base: 9,
+                power: power,
+                power_base: power,
                 shot_speed: 300.0,
                 damage: 10.0,
                 angle: player_rotation})
@@ -77,7 +79,7 @@ pub fn intialize_player(
         world
             .create_entity()
             .with(shield_transform)
-            .with(sprite_sheet_handle[11].clone())
+            .with(sprite_sheet_handle[13].clone())
             .with(Transparent)
             .with(Parent{entity: proton_body})
             .with(ShieldAimChild{id: player_id, angle: player_rotation})

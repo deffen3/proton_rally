@@ -16,11 +16,11 @@ pub fn initialize_weapon_fire_resource(
     world: &mut World,
     sprite_sheet_handle: &Vec<SpriteRender>,
 ) -> () {
-    let weapon_fire_resource = WeaponFireResource {
+    let resource = WeaponFireResource {
         player_1_weapon_fire: sprite_sheet_handle[7].clone(),
         player_2_weapon_fire: sprite_sheet_handle[8].clone(),
         player_3_weapon_fire: sprite_sheet_handle[9].clone(),
         player_4_weapon_fire: sprite_sheet_handle[10].clone(),
     };
-    world.insert(weapon_fire_resource.clone());
+    world.insert(resource.clone());
 }

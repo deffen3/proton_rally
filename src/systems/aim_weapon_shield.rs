@@ -1,17 +1,13 @@
-use amethyst::{
-    core::{Time, Transform, components::Parent},
-    derive::SystemDesc,
-    ecs::{
-        Join, Read, System, SystemData, World,
+use amethyst::{core::{Time, Transform, components::Parent}, derive::SystemDesc, ecs::{
+        Join, Read, ReadExpect, System, SystemData, World,
         WriteStorage, ReadStorage, Entities,
-    },
-    input::{InputHandler, StringBindings},
-};
+    }, input::{InputHandler, StringBindings}, renderer::SpriteRender};
 
 use std::f32::consts::PI;
 use std::collections::HashMap;
 
 use crate::components::{AimControlState, Player, Shield, ShieldAimChild, Weapon, WeaponAimChild};
+use crate::resources::ShieldPowerResource;
 
 #[derive(SystemDesc, Default)]
 pub struct AimWeaponSystem {
@@ -26,6 +22,8 @@ impl<'s> System<'s> for AimWeaponSystem {
         WriteStorage<'s, Shield>,
         WriteStorage<'s, ShieldAimChild>,
         WriteStorage<'s, Transform>,
+        WriteStorage<'s, SpriteRender>,
+        ReadExpect<'s, ShieldPowerResource>,
         ReadStorage<'s, Parent>,
         Read<'s, Time>,
         Read<'s, InputHandler<StringBindings>>,
@@ -44,6 +42,8 @@ impl<'s> System<'s> for AimWeaponSystem {
             mut shields,
             mut shield_aims,
             mut transforms,
+            mut sprites,
+            shield_power_resource,
             parents,
             time,
             input,
@@ -54,6 +54,7 @@ impl<'s> System<'s> for AimWeaponSystem {
         //Find the angles for the parent player body, so this can be subtracted out of the weapon angle later
         let mut id_match_weapon_angles: HashMap<u32, (f32, Option<f32>)> = HashMap::new();
         let mut id_match_shield_angles: HashMap<u32, (f32, Option<f32>)> = HashMap::new();
+        let mut id_match_shield_power_sprites: HashMap<u32, u16> = HashMap::new();
 
         for (entity, player, weapon, shield, transform) in (
             &entities,
@@ -107,8 +108,7 @@ impl<'s> System<'s> for AimWeaponSystem {
                     player.aim_control_state = AimControlState::Weapon;
                 },
                 _ => {}
-            }
-            
+            }           
 
             
             let player_aim_x = match player.id {
@@ -172,6 +172,10 @@ impl<'s> System<'s> for AimWeaponSystem {
                     id_match_shield_angles.insert(player_id, (player_angle, None));
                 }
             }
+
+
+            
+            id_match_shield_power_sprites.insert(player_id, shield.power);
             
         }
 
@@ -197,9 +201,11 @@ impl<'s> System<'s> for AimWeaponSystem {
             transform.set_rotation_2d(-player_base_angle + weapon_aim.angle);
         }
 
-        for (shield_aim, parent, transform) in (
+
+        for (shield_aim, parent, sprite, transform) in (
             &mut shield_aims,
             &parents,
+            &mut sprites,
             &mut transforms,
         )
             .join()
@@ -216,6 +222,34 @@ impl<'s> System<'s> for AimWeaponSystem {
             };
 
             transform.set_rotation_2d(-player_base_angle + shield_aim.angle);
+
+
+            let shield_power = id_match_shield_power_sprites.get(&parent_id);
+
+            match shield_power {
+                Some(s) if *s < 3 => {
+                    *sprite = shield_power_resource.shield_off.clone();
+                },
+                Some(s) if *s < 6 => {
+                    *sprite = shield_power_resource.shield_30deg.clone();
+                },
+                Some(s) if *s < 9 => {
+                    *sprite = shield_power_resource.shield_60deg.clone();
+                },
+                Some(s) if *s < 15 => {
+                    *sprite = shield_power_resource.shield_90deg.clone();
+                },
+                Some(s) if *s < 21 => {
+                    *sprite = shield_power_resource.shield_180deg.clone();
+                },
+                Some(s) if *s < 27 => {
+                    *sprite = shield_power_resource.shield_270deg.clone();
+                },
+                Some(s) if *s >= 27 => {
+                    *sprite = shield_power_resource.shield_360deg.clone();
+                },
+                _ => {}
+            }
         }
     }
 }

@@ -23,7 +23,8 @@ use crate::systems::{
     HitboxCollisionDetection, HitboxImmovableCollisionDetection};
 use crate::resources::{
     load_sprites, load_world_textures, 
-    initialize_weapon_fire_resource};
+    initialize_weapon_fire_resource,
+    initialize_shield_power_resource};
 
 
 #[derive(Default)]
@@ -88,6 +89,7 @@ impl<'a, 'b> SimpleState for MyState<'a, 'b> {
         let world_textures = load_world_textures(world);
 
         initialize_weapon_fire_resource(world, &sprites);
+        initialize_shield_power_resource(world, &sprites);
 
         intialize_arena(world, &arena_properties, &sprites, &world_textures);
         intialize_player(world, &arena_properties, &sprites);
