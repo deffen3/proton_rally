@@ -20,6 +20,9 @@ pub enum CollisionType {
 pub struct Movable {
     pub dx: f32,
     pub dy: f32,
+    pub power: u16,
+    pub power_base: u16,
+    pub max_accel_force: f32,
     pub collision_type: CollisionType,
     pub prevent_collision_id: Option<u32>,
 }
@@ -29,10 +32,13 @@ impl Component for Movable {
 }
 
 impl Movable {
-    pub fn new(collision_type: CollisionType) -> Movable {
+    pub fn new(power:u16, max_accel_force: f32, collision_type: CollisionType) -> Movable {
         Movable {
             dx: 0.0,
             dy: 0.0,
+            power,
+            power_base: power,
+            max_accel_force,
             collision_type,
             prevent_collision_id: None,
         }

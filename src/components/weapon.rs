@@ -5,7 +5,10 @@ use amethyst::ecs::prelude::{Component, DenseVecStorage};
 pub struct Weapon {
     pub cooldown_timer: f32,
     pub cooldown_reset: f32,
+    pub power: u16,
+    pub power_base: u16,
     pub shot_speed: f32,
+    pub damage: f32,
     pub angle: f32, //needs to be synchronized with child entity's weapon angle
 }
 

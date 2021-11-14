@@ -9,7 +9,7 @@ use std::f32::consts::PI;
 
 use crate::components::{
     Arena, Movable, CollisionType, Mass,
-    Player, PlayerState, Hitbox, HitboxShape, Weapon, WeaponAimChild};
+    Player, PlayerState, Hitbox, HitboxShape, Weapon, WeaponAimChild, Shield};
 
 pub fn intialize_player(
     world: &mut World,
@@ -35,17 +35,32 @@ pub fn intialize_player(
             .with(Transparent)
             .with(Player{
                 id: player_id,
-                state: PlayerState::Active})
-            .with(Movable::new(CollisionType::Bounce{bounces:None, sticks:false}))
+                state: PlayerState::Active,
+                system_adjust_cooldown_timer: 0.0,
+                system_adjust_cooldown_reset: 0.3,
+            })
+            .with(Movable::new(
+                9,
+                300.0,
+                CollisionType::Bounce{bounces:None, sticks:false}))
             .with(Mass::new(1.0))
             .with(Hitbox{
                 width: 16.0 * x_scale,
                 height: 16.0 * y_scale,
                 shape: HitboxShape::Circle})
+            .with(Shield{
+                cooldown_timer: 0.0,
+                cooldown_reset: 0.333,
+                power: 9,
+                power_base: 9,
+                angle: player_rotation})
             .with(Weapon{
                 cooldown_timer: 0.0,
                 cooldown_reset: 0.333,
+                power: 9,
+                power_base: 9,
                 shot_speed: 300.0,
+                damage: 10.0,
                 angle: player_rotation})
             .build();
 

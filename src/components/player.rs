@@ -10,6 +10,8 @@ pub enum PlayerState {
 pub struct Player {
     pub id: usize,
     pub state: PlayerState,
+    pub system_adjust_cooldown_timer: f32,
+    pub system_adjust_cooldown_reset: f32,
 }
 
 impl Component for Player {

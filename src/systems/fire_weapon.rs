@@ -56,11 +56,15 @@ impl<'s> System<'s> for FireWeaponsSystem {
                 _ => None,
             };
 
-            match (primary_fire, weapon.cooldown_timer) {
-                (_, cooldown_timer) if (cooldown_timer >= 0.0) => {
+            match (primary_fire, weapon.cooldown_timer, weapon.power) {
+                (_, _, power) if (power == 0) => {
+                    //Do nothing, not even decrease cooldown timer, weapon systems are off
+                }
+                (_, cooldown_timer, _) if (cooldown_timer >= 0.0) => {
+                    //Can't fire yet, waiting on cooldown
                     weapon.cooldown_timer -= dt;
                 }
-                (Some(fire), cooldown_timer) if (fire == true) & (cooldown_timer <= 0.0) => {
+                (Some(fire), cooldown_timer, _) if (fire == true) & (cooldown_timer <= 0.0) => {
                     fire_weapon(
                         &entities,
                         entity.id(),
@@ -71,9 +75,9 @@ impl<'s> System<'s> for FireWeaponsSystem {
                         &lazy_update,
                     );
 
-                    weapon.cooldown_timer = weapon.cooldown_reset;
+                    weapon.cooldown_timer = weapon.cooldown_reset / (weapon.power as f32 / 9.0) ;
                 }
-                (_, _) => ()
+                (_, _, _) => {}
             }
         }
     }

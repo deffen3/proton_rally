@@ -50,10 +50,11 @@ impl<'s> System<'s> for MovePlayerSystem {
         )
             .join()
         {
-            let max_accel_thrust_force = 300.0;
-            let auto_decel_force = max_accel_thrust_force / 6.0; //applied when no controller input detected
-            let friction_decel_force = max_accel_thrust_force / 20.0; //applied always, mass cancels out
-            let air_friction_decel_force = max_accel_thrust_force / 15_000.0; //applied always, based on velocity squared
+            let powered_max_accel_force = movable.max_accel_force * (movable.power as f32 / 9.0);
+
+            let auto_decel_force = powered_max_accel_force / 6.0; //applied when no controller input detected
+            let friction_decel_force = powered_max_accel_force / 20.0; //applied always, mass cancels out
+            let air_friction_decel_force = powered_max_accel_force / 15_000.0; //applied always, based on velocity squared
 
             let sq_vel = movable.dx.powi(2) + movable.dy.powi(2);
 
@@ -100,7 +101,7 @@ impl<'s> System<'s> for MovePlayerSystem {
             // Apply Control Accelerations
             if player_accel_x_pct.abs() > 0.0 {
                 player_input = true;
-                movable.dx += (max_accel_thrust_force * player_accel_x_pct)/mass.mass  * dt;
+                movable.dx += (powered_max_accel_force * player_accel_x_pct)/mass.mass  * dt;
             }
             else if movable.dx.abs() > 0.00001 {
                 movable.dx -= auto_decel_force/mass.mass * movable.dx.signum() * dt;
@@ -111,7 +112,7 @@ impl<'s> System<'s> for MovePlayerSystem {
 
             if player_accel_y_pct.abs() > 0.0 {
                 player_input = true;
-                movable.dy += (max_accel_thrust_force * player_accel_y_pct)/mass.mass  * dt;
+                movable.dy += (powered_max_accel_force * player_accel_y_pct)/mass.mass  * dt;
             }
             else if movable.dy.abs() > 0.00001 {
                 movable.dy -= auto_decel_force/mass.mass * movable.dy.signum() * dt;

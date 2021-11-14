@@ -12,11 +12,11 @@ use amethyst::{
 };
 
 use crate::{components::{WeaponAimChild, WeaponFire}, entities::{
-    build_arena_store, intialize_arena, initialize_camera, intialize_player}};
+    build_arena_store, intialize_arena, initialize_camera, intialize_player}, systems::PlayerSystemsSystem};
 use crate::components::{
     ArenaNames, ArenaStoreResource, Arena, ArenaElement,
     CameraOrtho, 
-    Movable, Mass, Player, Hitbox, Weapon};
+    Movable, Mass, Player, Hitbox, Weapon, Shield};
 use crate::systems::{
     CameraTrackingSystem, 
     MovePlayerSystem, AimWeaponSystem, FireWeaponsSystem, MoveWeaponFireSystem,
@@ -57,6 +57,7 @@ impl<'a, 'b> SimpleState for MyState<'a, 'b> {
         world.register::<Movable>();
         world.register::<Mass>();
         world.register::<Hitbox>();
+        world.register::<Shield>();
         world.register::<Weapon>();
         world.register::<WeaponFire>();
         world.register::<WeaponAimChild>();
@@ -116,6 +117,8 @@ impl<'a, 'b> SimpleState for MyState<'a, 'b> {
             HitboxImmovableCollisionDetection::default(), "hitbox_immovable_collision_system", &[]);
         dispatcher_builder.add(
             MoveWeaponFireSystem::default(), "move_weapon_fire_system", &[]);
+        dispatcher_builder.add(
+            PlayerSystemsSystem::default(), "player_systems_system", &[]);
 
         
         // Build and setup the `Dispatcher`.
