@@ -16,7 +16,7 @@ use crate::{components::{WeaponAimChild, WeaponFire}, entities::{
 use crate::components::{
     ArenaNames, ArenaStoreResource, Arena, ArenaElement,
     CameraOrtho, 
-    Movable, Mass, Player, Hitbox, Weapon, Shield};
+    Movable, Mass, Player, Hitbox, Weapon, Shield, ShieldAimChild};
 use crate::systems::{
     CameraTrackingSystem, 
     MovePlayerSystem, AimWeaponSystem, FireWeaponsSystem, MoveWeaponFireSystem,
@@ -58,6 +58,7 @@ impl<'a, 'b> SimpleState for MyState<'a, 'b> {
         world.register::<Mass>();
         world.register::<Hitbox>();
         world.register::<Shield>();
+        world.register::<ShieldAimChild>();
         world.register::<Weapon>();
         world.register::<WeaponFire>();
         world.register::<WeaponAimChild>();

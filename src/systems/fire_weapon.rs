@@ -49,10 +49,10 @@ impl<'s> System<'s> for FireWeaponsSystem {
             .join()
         {
             let primary_fire = match player.id {
-                0 => input.action_is_down("p1_fire"),
-                1 => input.action_is_down("p2_fire"),
-                2 => input.action_is_down("p3_fire"),
-                3 => input.action_is_down("p4_fire"),
+                0 => input.axis_value("p1_fire"),
+                1 => input.axis_value("p2_fire"),
+                2 => input.axis_value("p3_fire"),
+                3 => input.axis_value("p4_fire"),
                 _ => None,
             };
 
@@ -64,7 +64,7 @@ impl<'s> System<'s> for FireWeaponsSystem {
                     //Can't fire yet, waiting on cooldown
                     weapon.cooldown_timer -= dt;
                 }
-                (Some(fire), cooldown_timer, _) if (fire == true) & (cooldown_timer <= 0.0) => {
+                (Some(fire), cooldown_timer, _) if (fire > 0.5) & (cooldown_timer <= 0.0) => {
                     fire_weapon(
                         &entities,
                         entity.id(),

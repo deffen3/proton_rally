@@ -9,7 +9,7 @@ use std::f32::consts::PI;
 
 use crate::components::{
     Arena, Movable, CollisionType, Mass,
-    Player, PlayerState, Hitbox, HitboxShape, Weapon, WeaponAimChild, Shield};
+    Player, PlayerState, AimControlState, Hitbox, HitboxShape, Weapon, WeaponAimChild, Shield, ShieldAimChild};
 
 pub fn intialize_player(
     world: &mut World,
@@ -38,6 +38,9 @@ pub fn intialize_player(
                 state: PlayerState::Active,
                 system_adjust_cooldown_timer: 0.0,
                 system_adjust_cooldown_reset: 0.3,
+                aim_control_state: AimControlState::Locked,
+                aim_mode_cooldown_timer: 0.0,
+                aim_mode_cooldown_reset: 0.3,
             })
             .with(Movable::new(
                 9,
@@ -77,6 +80,21 @@ pub fn intialize_player(
             .with(Transparent)
             .with(Parent{entity: proton_body})
             .with(WeaponAimChild{id: player_id, angle: player_rotation})
+            .build();
+
+        //Create player proton shield
+        let mut shield_transform = Transform::default();
+        shield_transform.set_rotation_2d(0.0);
+        shield_transform.set_translation_xyz(0.0, 0.0, 0.0);
+        shield_transform.set_scale(Vector3::new(1.0, 1.0, 0.0));
+
+        world
+            .create_entity()
+            .with(shield_transform)
+            .with(sprite_sheet_handle[11].clone())
+            .with(Transparent)
+            .with(Parent{entity: proton_body})
+            .with(ShieldAimChild{id: player_id, angle: player_rotation})
             .build();
     }
 }

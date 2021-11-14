@@ -13,3 +13,14 @@ pub struct Shield {
 impl Component for Shield {
     type Storage = DenseVecStorage<Self>;
 }
+
+
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub struct ShieldAimChild {
+    pub id: usize,
+    pub angle: f32, //needs to be synchronized with parent entity's weapon angle
+}
+
+impl Component for ShieldAimChild {
+    type Storage = DenseVecStorage<Self>;
+}
