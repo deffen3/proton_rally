@@ -71,8 +71,8 @@ List((
         ( //11) proton shield
             x: 79,
             y: 0,
-            width: 24,
-            height: 24, //fake height to help with rotation axis
+            width: 28,
+            height: 28, //fake height to help with rotation axis
         ),
     ],
 ))

@@ -67,20 +67,6 @@ pub fn intialize_player(
                 angle: player_rotation})
             .build();
 
-        //Create player proton cannon weapon
-        let mut cannon_transform = Transform::default();
-        cannon_transform.set_rotation_2d(0.0);
-        cannon_transform.set_translation_xyz(0.0, 0.0, 0.0);
-        cannon_transform.set_scale(Vector3::new(1.0, 1.0, 0.0));
-
-        world
-            .create_entity()
-            .with(cannon_transform)
-            .with(sprite_sheet_handle[6].clone())
-            .with(Transparent)
-            .with(Parent{entity: proton_body})
-            .with(WeaponAimChild{id: player_id, angle: player_rotation})
-            .build();
 
         //Create player proton shield
         let mut shield_transform = Transform::default();
@@ -95,6 +81,21 @@ pub fn intialize_player(
             .with(Transparent)
             .with(Parent{entity: proton_body})
             .with(ShieldAimChild{id: player_id, angle: player_rotation})
+            .build();
+
+        //Create player proton cannon weapon
+        let mut cannon_transform = Transform::default();
+        cannon_transform.set_rotation_2d(0.0);
+        cannon_transform.set_translation_xyz(0.0, 0.0, 0.0);
+        cannon_transform.set_scale(Vector3::new(1.0, 1.0, 0.0));
+
+        world
+            .create_entity()
+            .with(cannon_transform)
+            .with(sprite_sheet_handle[6].clone())
+            .with(Transparent)
+            .with(Parent{entity: proton_body})
+            .with(WeaponAimChild{id: player_id, angle: player_rotation})
             .build();
     }
 }
