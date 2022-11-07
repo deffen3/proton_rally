@@ -1,12 +1,12 @@
 use amethyst::ecs::prelude::{Component, DenseVecStorage};
 
+use crate::components::{Powerable, Cooldown};
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+
+#[derive(Debug, PartialEq)]
 pub struct Shield {
-    pub cooldown_timer: f32,
-    pub cooldown_reset: f32,
-    pub power: u16,
-    pub power_base: u16,
+    pub cooldown: Cooldown,
+    pub power: Powerable,
     pub angle: f32, //needs to be synchronized with child entity's weapon angle
 }
 

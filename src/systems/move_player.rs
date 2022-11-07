@@ -50,7 +50,7 @@ impl<'s> System<'s> for MovePlayerSystem {
         )
             .join()
         {
-            let powered_max_accel_force = movable.max_accel_force * (movable.power as f32 / 9.0);
+            let powered_max_accel_force = movable.max_accel_force * (movable.power.power as f32 / 9.0);
 
             let auto_decel_force = powered_max_accel_force / 6.0; //applied when no controller input detected
             let friction_decel_force = powered_max_accel_force / 20.0; //applied always, mass cancels out

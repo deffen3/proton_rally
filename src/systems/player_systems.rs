@@ -36,7 +36,7 @@ impl<'s> System<'s> for PlayerSystemsSystem {
     ) {
         let dt = time.delta_seconds();
 
-        for (mut player, mut shield, mut movable, mut weapon) in (
+        for (player, shield, movable, weapon) in (
             &mut players,
             &mut shields,
             &mut movables,
@@ -44,93 +44,106 @@ impl<'s> System<'s> for PlayerSystemsSystem {
         )
             .join()
         {
-            if player.system_adjust_cooldown_timer > 0.0 {
-                player.system_adjust_cooldown_timer -= dt;
-            }
-            else {
-                // Get Controller Input for each Player
-                let adjust_shield_system = match player.id {
-                    0 => input.action_is_down("p1_adjust_shield_system"),
-                    1 => input.action_is_down("p2_adjust_shield_system"),
-                    2 => input.action_is_down("p3_adjust_shield_system"),
-                    3 => input.action_is_down("p4_adjust_shield_system"),
-                    _ => None,
-                };
-                let adjust_thrust_system = match player.id {
-                    0 => input.action_is_down("p1_adjust_thrust_system"),
-                    1 => input.action_is_down("p2_adjust_thrust_system"),
-                    2 => input.action_is_down("p3_adjust_thrust_system"),
-                    3 => input.action_is_down("p4_adjust_thrust_system"),
-                    _ => None,
-                };
-                let adjust_weapon_system = match player.id {
-                    0 => input.action_is_down("p1_adjust_weapon_system"),
-                    1 => input.action_is_down("p2_adjust_weapon_system"),
-                    2 => input.action_is_down("p3_adjust_weapon_system"),
-                    3 => input.action_is_down("p4_adjust_weapon_system"),
-                    _ => None,
-                };
-                let adjust_reset_system = match player.id {
-                    0 => input.action_is_down("p1_adjust_reset_system"),
-                    1 => input.action_is_down("p2_adjust_reset_system"),
-                    2 => input.action_is_down("p3_adjust_reset_system"),
-                    3 => input.action_is_down("p4_adjust_reset_system"),
-                    _ => None,
-                };
+            player.system_adjust_cooldown.timer_update(&dt);
+            if player.system_adjust_cooldown.timer_active() {
 
-                let adjust_attempted = match (adjust_shield_system, adjust_thrust_system, adjust_weapon_system, adjust_reset_system) {
-                    (_, _, _, Some(r)) if r == true => {
-                        shield.power = shield.power_base;
-                        movable.power = movable.power_base;
-                        weapon.power = weapon.power_base;
+                let (
+                    adjust_reset_system,
+                    adjust_shield_system,
+                    adjust_thrust_system,
+                    adjust_weapon_system,
+                ) = get_player_systems_controller_input(&player.id, &input);
 
-                        true
-                    },
-                    (Some(s), _, _, _) if s == true => {
-                        if movable.power >= 3 {
-                            movable.power -= 3;
-                            shield.power += 3;
-                        }
-                        if weapon.power >= 3 {
-                            weapon.power -= 3;
-                            shield.power += 3;
-                        }
+                let mut adjust_attempted: bool = false;
 
-                        true
-                    },
-                    (_, Some(t), _, _) if t == true => {
-                        if shield.power >= 3 {
-                            shield.power -= 3;
-                            movable.power += 3;
-                        }
-                        if weapon.power >= 3 {
-                            weapon.power -= 3;
-                            movable.power += 3;
-                        }
+                if adjust_reset_system {
+                    shield.power.reset();
+                    movable.power.reset();
+                    weapon.power.reset();
+                    adjust_attempted = true;
+                }
+                
+                if adjust_shield_system {
+                    if movable.power.down() {
+                        shield.power.up();
+                    }
+                    if weapon.power.down() {
+                        shield.power.up();
+                    }
+                    adjust_attempted = true;
+                }
 
-                        true
-                    },
-                    (_, _, Some(w), _) if w == true => {
-                        if movable.power >= 3 {
-                            movable.power -= 3;
-                            weapon.power += 3;
-                        }
-                        if shield.power >= 3 {
-                            shield.power -= 3;
-                            weapon.power += 3;
-                        }
+                if adjust_thrust_system {
+                    if shield.power.down() {
+                        movable.power.up();
+                    }
+                    if weapon.power.down() {
+                        movable.power.up();
+                    }
+                    adjust_attempted = true;
+                }
 
-                        true
-                    },
-                    _ => {false}
-                };
+                if adjust_weapon_system {
+                    if shield.power.down() {
+                        weapon.power.up();
+                    }
+                    if movable.power.down() {
+                        weapon.power.up();
+                    }
+                    adjust_attempted = true;
+                }
 
+                
                 if adjust_attempted {
-                    player.system_adjust_cooldown_timer = player.system_adjust_cooldown_reset;
+                    player.system_adjust_cooldown.timer_reset();
 
                     log::info!("p1 s:{:?}, t:{:?}, w:{:?}", shield.power, movable.power, weapon.power);
                 }
             }
         }
     }
+}
+
+
+fn get_player_systems_controller_input(player_id: &usize, input: &Read<InputHandler<StringBindings>>) -> (bool, bool, bool, bool) {
+    // Get Controller Input for each Player
+    let adjust_reset_system = match player_id {
+        0 => input.action_is_down("p1_adjust_reset_system"),
+        1 => input.action_is_down("p2_adjust_reset_system"),
+        2 => input.action_is_down("p3_adjust_reset_system"),
+        3 => input.action_is_down("p4_adjust_reset_system"),
+        _ => None,
+    };
+
+    let adjust_shield_system = match player_id {
+        0 => input.action_is_down("p1_adjust_shield_system"),
+        1 => input.action_is_down("p2_adjust_shield_system"),
+        2 => input.action_is_down("p3_adjust_shield_system"),
+        3 => input.action_is_down("p4_adjust_shield_system"),
+        _ => None,
+    };
+
+    let adjust_thrust_system = match player_id {
+        0 => input.action_is_down("p1_adjust_thrust_system"),
+        1 => input.action_is_down("p2_adjust_thrust_system"),
+        2 => input.action_is_down("p3_adjust_thrust_system"),
+        3 => input.action_is_down("p4_adjust_thrust_system"),
+        _ => None,
+    };
+
+    let adjust_weapon_system = match player_id {
+        0 => input.action_is_down("p1_adjust_weapon_system"),
+        1 => input.action_is_down("p2_adjust_weapon_system"),
+        2 => input.action_is_down("p3_adjust_weapon_system"),
+        3 => input.action_is_down("p4_adjust_weapon_system"),
+        _ => None,
+    };
+
+    return (
+        adjust_reset_system.unwrap_or(false),
+        adjust_shield_system.unwrap_or(false),
+        adjust_thrust_system.unwrap_or(false),
+        adjust_weapon_system.unwrap_or(false),
+    )
+    
 }

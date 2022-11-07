@@ -4,6 +4,8 @@ mod player;
 mod hitbox;
 mod shield;
 mod weapon;
+mod power;
+mod cooldown;
 mod arena;
 mod camera_ortho;
 
@@ -13,5 +15,7 @@ pub use self::player::{Player, PlayerState, AimControlState};
 pub use self::hitbox::{Hitbox, HitboxShape};
 pub use self::shield::{Shield, ShieldAimChild};
 pub use self::weapon::{Weapon, WeaponAimChild, WeaponFire};
+pub use self::power::{Powerable};
+pub use self::cooldown::{Cooldown};
 pub use self::arena::{ArenaStoreResource, Arena, ArenaNames, ArenaElement, ArenaElementKinds, ArenaFloor};
 pub use self::camera_ortho::{CameraOrtho};

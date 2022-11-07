@@ -1,5 +1,7 @@
 use amethyst::ecs::prelude::{Component, DenseVecStorage};
 
+use crate::components::{Cooldown};
+
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum PlayerState {
     Active,
@@ -17,11 +19,9 @@ pub enum AimControlState {
 pub struct Player {
     pub id: usize,
     pub state: PlayerState,
-    pub system_adjust_cooldown_timer: f32,
-    pub system_adjust_cooldown_reset: f32,
+    pub system_adjust_cooldown: Cooldown,
     pub aim_control_state: AimControlState,
-    pub aim_mode_cooldown_timer: f32,
-    pub aim_mode_cooldown_reset: f32,
+    pub aim_mode_cooldown: Cooldown,
 }
 
 impl Component for Player {

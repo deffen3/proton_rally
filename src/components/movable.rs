@@ -9,7 +9,7 @@ use ncollide2d::shape::{Ball};
 
 use std::f32::consts::PI;
 
-use crate::components::{Hitbox, HitboxShape};
+use crate::components::{Hitbox, HitboxShape, Powerable};
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum CollisionType {
@@ -20,8 +20,7 @@ pub enum CollisionType {
 pub struct Movable {
     pub dx: f32,
     pub dy: f32,
-    pub power: u16,
-    pub power_base: u16,
+    pub power: Powerable,
     pub max_accel_force: f32,
     pub collision_type: CollisionType,
     pub prevent_collision_id: Option<u32>,
@@ -36,8 +35,7 @@ impl Movable {
         Movable {
             dx: 0.0,
             dy: 0.0,
-            power,
-            power_base: power,
+            power: Powerable { power: power, power_base: power },
             max_accel_force,
             collision_type,
             prevent_collision_id: None,

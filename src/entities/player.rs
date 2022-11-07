@@ -9,7 +9,7 @@ use std::f32::consts::PI;
 
 use crate::components::{
     Arena, Movable, CollisionType, Mass,
-    Player, PlayerState, AimControlState, Hitbox, HitboxShape, Weapon, WeaponAimChild, Shield, ShieldAimChild};
+    Player, PlayerState, AimControlState, Hitbox, HitboxShape, Weapon, WeaponAimChild, Shield, ShieldAimChild, Powerable, Cooldown};
 
 pub fn intialize_player(
     world: &mut World,
@@ -38,11 +38,9 @@ pub fn intialize_player(
             .with(Player{
                 id: player_id,
                 state: PlayerState::Active,
-                system_adjust_cooldown_timer: 0.0,
-                system_adjust_cooldown_reset: 0.1,
+                system_adjust_cooldown: Cooldown {timer: 0.0, reset: 0.1},
                 aim_control_state: AimControlState::Locked,
-                aim_mode_cooldown_timer: 0.0,
-                aim_mode_cooldown_reset: 0.1,
+                aim_mode_cooldown: Cooldown {timer: 0.0, reset: 0.1},
             })
             .with(Movable::new(
                 9,
@@ -54,16 +52,12 @@ pub fn intialize_player(
                 height: 16.0 * y_scale,
                 shape: HitboxShape::Circle})
             .with(Shield{
-                cooldown_timer: 0.0,
-                cooldown_reset: 0.333,
-                power: power,
-                power_base: power,
+                cooldown: Cooldown {timer: 0.0, reset: 0.333},
+                power: Powerable{power: power, power_base:power},
                 angle: player_rotation})
             .with(Weapon{
-                cooldown_timer: 0.0,
-                cooldown_reset: 0.333,
-                power: power,
-                power_base: power,
+                cooldown: Cooldown {timer: 0.0, reset: 0.333},
+                power: Powerable{power: power, power_base:power},
                 shot_speed: 300.0,
                 damage: 10.0,
                 angle: player_rotation})

@@ -88,23 +88,20 @@ impl<'s> System<'s> for AimWeaponSystem {
             };
             
   
-            if player.aim_mode_cooldown_timer > 0.0 {
-                // used as de-bounce from Locked into another mode, which could occur based on slightly
-                // delayed release of one button vs. the other
-                player.aim_mode_cooldown_timer -= dt; 
-            }
+            player.aim_mode_cooldown.timer_update(&dt);
+            let aim_mode_cooldown_ready = player.aim_mode_cooldown.timer_active();
 
             match (player_aim_shield_state, player_aim_weapon_state) {
                 (Some(shield_state), Some(weapon_state)) if weapon_state == true && shield_state == true => {
                     player.aim_control_state = AimControlState::Locked;
-                    player.aim_mode_cooldown_timer = player.aim_mode_cooldown_reset;
+                    player.aim_mode_cooldown.timer_reset();
                 },
                 (Some(shield_state), Some(weapon_state)) 
-                        if player.aim_mode_cooldown_timer <= 0.0 && weapon_state == false && shield_state == true => {
+                        if aim_mode_cooldown_ready && weapon_state == false && shield_state == true => {
                     player.aim_control_state = AimControlState::Shield;
                 },
                 (Some(shield_state), Some(weapon_state)) 
-                        if player.aim_mode_cooldown_timer <= 0.0 && weapon_state == true && shield_state == false => {
+                        if aim_mode_cooldown_ready && weapon_state == true && shield_state == false => {
                     player.aim_control_state = AimControlState::Weapon;
                 },
                 _ => {}
@@ -175,7 +172,7 @@ impl<'s> System<'s> for AimWeaponSystem {
 
 
             
-            id_match_shield_power_sprites.insert(player_id, shield.power);
+            id_match_shield_power_sprites.insert(player_id, shield.power.power);
             
         }
 
