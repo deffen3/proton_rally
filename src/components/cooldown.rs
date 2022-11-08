@@ -1,10 +1,14 @@
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Cooldown {
-    pub timer: f32,
-    pub reset: f32,
+    timer: f32,
+    reset: f32,
 }
 
 impl Cooldown {
+    pub fn new(timer: f32, reset: f32) -> Cooldown {
+        Cooldown {timer: timer, reset: reset}
+    }
+
     pub fn timer_update(&mut self, dt: &f32) {
         if self.timer > 0.0 {
             self.timer -= dt;

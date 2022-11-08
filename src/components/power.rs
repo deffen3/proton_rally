@@ -1,17 +1,21 @@
 #[derive(Debug, PartialEq)]
 pub struct Powerable {
-    pub power: u16,
-    pub power_base: u16,
+    level: u16,
+    level_base: u16,
 }
 
 impl Powerable {
+    pub fn new(level: u16, level_base: u16) -> Powerable {
+        Powerable {level: level, level_base: level_base}
+    }
+
     pub fn reset(&mut self) {
-        self.power = self.power_base;
+        self.level = self.level_base;
     }
 
     pub fn down(&mut self) -> bool {
-        if self.power >= 3 {
-            self.power -= 3;
+        if self.level >= 3 {
+            self.level -= 3;
             return true;
         }
         else {
@@ -20,14 +24,14 @@ impl Powerable {
     }
 
     pub fn up(&mut self) {
-        self.power += 3;
+        self.level += 3;
     }
 
     pub fn is_powered(&self) -> bool {
-        self.power > 0
+        self.level > 0
     }
 
     pub fn get_power_pct(&self) -> f32 {
-        (self.power as f32) / (self.power_base as f32)
+        (self.level as f32) / (self.level_base as f32)
     }
 }

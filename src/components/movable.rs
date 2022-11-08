@@ -35,7 +35,7 @@ impl Movable {
         Movable {
             dx: 0.0,
             dy: 0.0,
-            power: Powerable { power: power, power_base: power },
+            power: Powerable::new(power, power),
             max_accel_force,
             collision_type,
             prevent_collision_id: None,

@@ -54,7 +54,7 @@ impl<'s> System<'s> for AimWeaponSystem {
         //Find the angles for the parent player body, so this can be subtracted out of the weapon angle later
         let mut id_match_weapon_angles: HashMap<u32, (f32, Option<f32>)> = HashMap::new();
         let mut id_match_shield_angles: HashMap<u32, (f32, Option<f32>)> = HashMap::new();
-        let mut id_match_shield_power_sprites: HashMap<u32, u16> = HashMap::new();
+        let mut id_match_shield_power_sprites: HashMap<u32, f32> = HashMap::new();
 
         for (entity, player, weapon, shield, transform) in (
             &entities,
@@ -172,7 +172,7 @@ impl<'s> System<'s> for AimWeaponSystem {
 
 
             
-            id_match_shield_power_sprites.insert(player_id, shield.power.power);
+            id_match_shield_power_sprites.insert(player_id, shield.power.get_power_pct());
             
         }
 
@@ -224,25 +224,25 @@ impl<'s> System<'s> for AimWeaponSystem {
             let shield_power = id_match_shield_power_sprites.get(&parent_id);
 
             match shield_power {
-                Some(s) if *s < 3 => {
+                Some(s) if *s < 0.333 => {
                     *sprite = shield_power_resource.shield_off.clone();
                 },
-                Some(s) if *s < 6 => {
+                Some(s) if *s < 0.666 => {
                     *sprite = shield_power_resource.shield_30deg.clone();
                 },
-                Some(s) if *s < 9 => {
+                Some(s) if *s < 1.0 => {
                     *sprite = shield_power_resource.shield_60deg.clone();
                 },
-                Some(s) if *s < 15 => {
+                Some(s) if *s < 1.666 => {
                     *sprite = shield_power_resource.shield_90deg.clone();
                 },
-                Some(s) if *s < 21 => {
+                Some(s) if *s < 2.333 => {
                     *sprite = shield_power_resource.shield_180deg.clone();
                 },
-                Some(s) if *s < 27 => {
+                Some(s) if *s < 3.0 => {
                     *sprite = shield_power_resource.shield_270deg.clone();
                 },
-                Some(s) if *s >= 27 => {
+                Some(s) if *s >= 3.0 => {
                     *sprite = shield_power_resource.shield_360deg.clone();
                 },
                 _ => {}

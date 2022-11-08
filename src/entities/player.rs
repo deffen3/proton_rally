@@ -38,9 +38,9 @@ pub fn intialize_player(
             .with(Player{
                 id: player_id,
                 state: PlayerState::Active,
-                system_adjust_cooldown: Cooldown {timer: 0.0, reset: 0.1},
+                system_adjust_cooldown: Cooldown::new(0.0, 0.1),
                 aim_control_state: AimControlState::Locked,
-                aim_mode_cooldown: Cooldown {timer: 0.0, reset: 0.1},
+                aim_mode_cooldown: Cooldown::new(0.0, 0.1),
             })
             .with(Movable::new(
                 9,
@@ -52,12 +52,12 @@ pub fn intialize_player(
                 height: 16.0 * y_scale,
                 shape: HitboxShape::Circle})
             .with(Shield{
-                cooldown: Cooldown {timer: 0.0, reset: 0.333},
-                power: Powerable{power: power, power_base:power},
+                cooldown: Cooldown::new(0.0, 0.333),
+                power: Powerable::new(power, power),
                 angle: player_rotation})
             .with(Weapon{
-                cooldown: Cooldown {timer: 0.0, reset: 0.333},
-                power: Powerable{power: power, power_base:power},
+                cooldown: Cooldown::new(0.0, 0.333),
+                power: Powerable::new(power, power),
                 shot_speed: 300.0,
                 damage: 10.0,
                 angle: player_rotation})
