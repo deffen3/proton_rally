@@ -93,16 +93,16 @@ impl<'s> System<'s> for AimWeaponSystem {
 
             match (player_aim_shield_state, player_aim_weapon_state) {
                 (Some(shield_state), Some(weapon_state)) if weapon_state == true && shield_state == true => {
-                    player.aim_control_state = AimControlState::Locked;
+                    player.aim_control_set_state(AimControlState::Locked);
                     player.aim_mode_cooldown.timer_reset();
                 },
                 (Some(shield_state), Some(weapon_state)) 
                         if aim_mode_cooldown_ready && weapon_state == false && shield_state == true => {
-                    player.aim_control_state = AimControlState::Shield;
+                    player.aim_control_set_state(AimControlState::Shield);
                 },
                 (Some(shield_state), Some(weapon_state)) 
                         if aim_mode_cooldown_ready && weapon_state == true && shield_state == false => {
-                    player.aim_control_state = AimControlState::Weapon;
+                    player.aim_control_set_state(AimControlState::Weapon);
                 },
                 _ => {}
             }           
@@ -143,21 +143,21 @@ impl<'s> System<'s> for AimWeaponSystem {
                 (_, _) => None, // do nothing to aim weapon, just update for player base angle
             };
 
-            match (aim_angle, player.aim_control_state) {
-                (Some(aim_angle), AimControlState::Locked) => {
+            match (aim_angle, player.aim_control_weapon_active(), player.aim_control_shield_active()) {
+                (Some(aim_angle), true, true) => {
                     id_match_weapon_angles.insert(player_id, (player_angle, Some(aim_angle)));
                     weapon.angle = aim_angle;
 
                     id_match_shield_angles.insert(player_id, (player_angle, Some(aim_angle)));
                     shield.angle = aim_angle;
                 }
-                (Some(aim_angle), AimControlState::Weapon) => {
+                (Some(aim_angle), true, _) => {
                     id_match_weapon_angles.insert(player_id, (player_angle, Some(aim_angle)));
                     weapon.angle = aim_angle;
                     
                     id_match_shield_angles.insert(player_id, (player_angle, None));
                 }
-                (Some(aim_angle), AimControlState::Shield) => {
+                (Some(aim_angle), _, true) => {
                     id_match_weapon_angles.insert(player_id, (player_angle, None));
                     
                     id_match_shield_angles.insert(player_id, (player_angle, Some(aim_angle)));

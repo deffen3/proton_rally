@@ -67,7 +67,7 @@ impl<'s> System<'s> for CameraTrackingSystem {
         let mut player_dys = Vec::<f32>::new();
 
         for (player, movable, transform) in (&players, &movables, &transforms).join() {
-            if player.state == PlayerState::Active || player.state == PlayerState::InRespawn {
+            if player.player_state_in_game() {
                 player_xs.push(transform.translation().x);
                 player_ys.push(transform.translation().y);
                 player_dxs.push(movable.dx.abs());

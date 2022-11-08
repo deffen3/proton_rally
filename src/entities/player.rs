@@ -35,13 +35,10 @@ pub fn intialize_player(
             .with(player_transform)
             .with(sprite_sheet_handle[player_id].clone())
             .with(Transparent)
-            .with(Player{
-                id: player_id,
-                state: PlayerState::Active,
-                system_adjust_cooldown: Cooldown::new(0.0, 0.1),
-                aim_control_state: AimControlState::Locked,
-                aim_mode_cooldown: Cooldown::new(0.0, 0.1),
-            })
+            .with(Player::new(
+                player_id, 
+                0.1, 
+                0.1))
             .with(Movable::new(
                 9,
                 300.0,
