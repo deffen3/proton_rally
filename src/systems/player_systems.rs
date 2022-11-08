@@ -62,34 +62,19 @@ impl<'s> System<'s> for PlayerSystemsSystem {
                     weapon.power.reset();
                     adjust_attempted = true;
                 }
-                
+
                 if adjust_shield_system {
-                    if movable.power.down() {
-                        shield.power.up();
-                    }
-                    if weapon.power.down() {
-                        shield.power.up();
-                    }
+                    shield.power.up(movable.power.down() + weapon.power.down());
                     adjust_attempted = true;
                 }
 
                 if adjust_thrust_system {
-                    if shield.power.down() {
-                        movable.power.up();
-                    }
-                    if weapon.power.down() {
-                        movable.power.up();
-                    }
+                    movable.power.up(shield.power.down() + weapon.power.down());
                     adjust_attempted = true;
                 }
 
                 if adjust_weapon_system {
-                    if shield.power.down() {
-                        weapon.power.up();
-                    }
-                    if movable.power.down() {
-                        weapon.power.up();
-                    }
+                    weapon.power.up(shield.power.down() + movable.power.down());
                     adjust_attempted = true;
                 }
 

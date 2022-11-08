@@ -31,7 +31,7 @@ impl Component for Movable {
 }
 
 impl Movable {
-    pub fn new(power:u16, max_accel_force: f32, collision_type: CollisionType) -> Movable {
+    pub fn new(power:u8, max_accel_force: f32, collision_type: CollisionType) -> Movable {
         Movable {
             dx: 0.0,
             dy: 0.0,
