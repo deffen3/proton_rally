@@ -68,7 +68,20 @@ impl<'s> System<'s> for HitboxCollisionDetection {
         )
             .join()
         {
+            // For each other movable, mass, hitbox
+            for (entity2, movable2, mass2, hitbox2, transform2) in (
+                &entities,
+                &movables,
+                &masses,
+                &hitboxes,
+                &transforms,
+            )
+                .join()
+            {
+                if entity.id() != entity2.id() {
 
+                }
+            }
         }
     }
 }

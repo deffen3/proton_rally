@@ -58,7 +58,15 @@ impl<'s> System<'s> for HitboxImmovableCollisionDetection {
         )
             .join()
         {
-
+            // For non-movable arena hitboxes
+            for (arena_hitbox, arena_element) in (
+                &hitboxes,
+                &arena_elements,
+            )
+                .join()
+            {
+                
+            }
         }
     }
 }
