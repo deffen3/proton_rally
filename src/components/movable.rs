@@ -17,6 +17,7 @@ pub enum CollisionType {
     Bounce {bounces: Option<i8>, sticks: bool},
 }
 
+#[derive(Debug, PartialEq)]
 pub struct Movable {
     pub dx: f32,
     pub dy: f32,

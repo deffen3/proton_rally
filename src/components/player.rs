@@ -16,6 +16,7 @@ pub enum AimControlState {
     Locked,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct Player {
     pub id: usize,
     state: PlayerState,

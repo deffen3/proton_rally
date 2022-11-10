@@ -1,5 +1,5 @@
 use amethyst::ecs::prelude::{Component, DenseVecStorage};
-
+#[derive(Debug, PartialEq)]
 pub struct Mass {
     pub mass: f32,
 }
