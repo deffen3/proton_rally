@@ -18,4 +18,4 @@ pub use self::weapon::{Weapon, WeaponAimChild, WeaponFire};
 pub use self::power::{Powerable};
 pub use self::cooldown::{Cooldown};
 pub use self::arena::{ArenaStoreResource, Arena, ArenaNames, ArenaElement, ArenaElementKinds, ArenaFloor};
-pub use self::camera_ortho::{CameraOrtho, CameraPlayerBounds};
+pub use self::camera_ortho::{CameraOrthoEdges, CameraPlayerBounds};

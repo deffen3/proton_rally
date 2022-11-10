@@ -15,7 +15,7 @@ use crate::{components::{WeaponAimChild, WeaponFire}, entities::{
     build_arena_store, intialize_arena, initialize_camera, intialize_player}, systems::PlayerSystemsSystem};
 use crate::components::{
     ArenaNames, ArenaStoreResource, Arena, ArenaElement,
-    CameraOrtho, 
+    CameraOrthoEdges, 
     Movable, Mass, Player, Hitbox, Weapon, Shield, ShieldAimChild};
 use crate::systems::{
     CameraTrackingSystem, 
@@ -52,7 +52,7 @@ impl<'a, 'b> SimpleState for MyState<'a, 'b> {
         build_arena_store(world);
 
         world.register::<Camera>();
-        world.register::<CameraOrtho>();
+        world.register::<CameraOrthoEdges>();
         world.register::<ArenaElement>();
         world.register::<Player>();
         world.register::<Movable>();

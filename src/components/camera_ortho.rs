@@ -5,16 +5,56 @@ use amethyst::ecs::prelude::{Component, DenseVecStorage};
 use serde::Deserialize;
 
 // Just used to store the current orthographic projection of the camera
-#[derive(Copy, Clone, Debug, PartialEq, Deserialize)]
-pub struct CameraOrtho {
+#[derive(Debug, PartialEq, Deserialize)]
+pub struct CameraOrthoEdges {
     pub left: f32,
     pub right: f32,
     pub bottom: f32,
     pub top: f32,
 }
 
-impl Component for CameraOrtho {
+impl Component for CameraOrthoEdges {
     type Storage = DenseVecStorage<Self>;
+}
+
+const CAMERA_ZOOM_RATE: f32 = 120.0;
+
+impl CameraOrthoEdges {
+    pub fn init_edges_keeping_aspect_ratio(
+        &mut self,
+        aspect_ratio: f32,
+        x_span: f32,
+        y_span: f32)
+    {
+        let target_span = (x_span / aspect_ratio).max(y_span);
+
+        self.left = -target_span * aspect_ratio / 2.0;
+        self.right = target_span * aspect_ratio / 2.0;
+        self.bottom = -target_span / 2.0;
+        self.top = target_span / 2.0;
+    }
+
+    pub fn calculate_edges_keeping_aspect_ratio(
+        &mut self,
+        aspect_ratio: f32,
+        x_span: f32,
+        y_span: f32,
+        dt: f32)
+    {
+        let old_span = self.top - self.bottom;
+        let target_span = (x_span / aspect_ratio).max(y_span);
+
+        let delta_span = (target_span - old_span)
+                    .min(CAMERA_ZOOM_RATE)
+                    .max(-CAMERA_ZOOM_RATE);
+
+        let new_span = old_span + delta_span * dt;
+
+        self.left = -new_span * aspect_ratio / 2.0;
+        self.right = new_span * aspect_ratio / 2.0;
+        self.bottom = -new_span / 2.0;
+        self.top = new_span / 2.0;
+    }
 }
 
 

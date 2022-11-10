@@ -5,7 +5,7 @@ use amethyst::{
     renderer::{Camera},
 };
 
-use crate::components::{Arena, CameraOrtho};
+use crate::components::{Arena, CameraOrthoEdges};
 
 pub fn initialize_camera(world: &mut World, arena_properties: &Arena) {
     // Setup camera in a way that our screen covers whole arena and (0, 0) is in the bottom left.
@@ -32,7 +32,7 @@ pub fn initialize_camera(world: &mut World, arena_properties: &Arena) {
             0.0,
             5.0,
         ))
-        .with(CameraOrtho{left, right, bottom, top})
+        .with(CameraOrthoEdges{left, right, bottom, top})
         .with(transform)
         .build();
 }

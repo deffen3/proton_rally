@@ -7,10 +7,10 @@ use amethyst::{
 };
 
 use crate::components::{
-    ArenaNames, Arena, ArenaStoreResource, CameraOrtho, CameraPlayerBounds, Player, PlayerState, Movable,
+    ArenaNames, Arena, ArenaStoreResource, CameraOrthoEdges, CameraPlayerBounds, Player, PlayerState, Movable,
 };
 
-const CAMERA_ZOOM_RATE: f32 = 120.0;
+
 const CAMERA_TRANSLATE_MAX_RATE: f32 = 100.0;
 
 #[derive(SystemDesc)]
@@ -27,7 +27,7 @@ impl<'s> System<'s> for CameraTrackingSystem {
         WriteStorage<'s, Transform>,
         Read<'s, Time>,
         WriteStorage<'s, Camera>,
-        WriteStorage<'s, CameraOrtho>,
+        WriteStorage<'s, CameraOrthoEdges>,
         ReadExpect<'s, ScreenDimensions>,
     );
 
@@ -89,71 +89,41 @@ impl<'s> System<'s> for CameraTrackingSystem {
                 transform.set_translation_x(self.arena_properties.width / 2.0);
                 transform.set_translation_y(self.arena_properties.height / 2.0);
 
-                //Standard full Arena Projection
-                let x_delta = self.arena_properties.width;
-                let y_delta = self.arena_properties.height;
-
                 //keep aspect ratio consistent
-                let target_delta = (x_delta / aspect_ratio).max(y_delta);
-
-                let camera_left = -target_delta * aspect_ratio / 2.0;
-                let camera_right = target_delta * aspect_ratio / 2.0;
-                let camera_bottom = -target_delta / 2.0;
-                let camera_top = target_delta / 2.0;
+                camera_ortho.init_edges_keeping_aspect_ratio(
+                    aspect_ratio, 
+                    self.arena_properties.width,
+                    self.arena_properties.height
+                );
 
                 *camera = Camera::orthographic(
-                    camera_left,
-                    camera_right,
-                    camera_bottom,
-                    camera_top,
+                    camera_ortho.left,
+                    camera_ortho.right,
+                    camera_ortho.bottom,
+                    camera_ortho.top,
                     0.0,
                     20.0,
                 );
-
-                // camera.set_projection(Projection::orthographic(
-                //     camera_left,
-                //     camera_right,
-                //     camera_bottom,
-                //     camera_top,
-                //     0.0,
-                //     20.0,
-                // ));
             } else {
                 //Update as game progresses
 
                 // Keep aspect ratio consistent
-                let target_delta = (
-                    player_bounds.get_span_x() / 
-                    aspect_ratio).max(player_bounds.get_span_y()
+                camera_ortho.calculate_edges_keeping_aspect_ratio(
+                    aspect_ratio, 
+                    player_bounds.get_span_x(),
+                    player_bounds.get_span_y(),
+                    dt,
                 );
-
-                let old_delta = camera_ortho.top - camera_ortho.bottom;
-                let d_delta = (target_delta - old_delta)
-                    .min(CAMERA_ZOOM_RATE)
-                    .max(-CAMERA_ZOOM_RATE);
-
-                let new_delta = old_delta + d_delta * dt;
-
-                let camera_new_left = -new_delta * aspect_ratio / 2.0;
-                let camera_new_right = new_delta * aspect_ratio / 2.0;
-                let camera_new_bottom = -new_delta / 2.0;
-                let camera_new_top = new_delta / 2.0;
 
                 // Updated Projection
                 *camera = Camera::orthographic(
-                    camera_new_left,
-                    camera_new_right,
-                    camera_new_bottom,
-                    camera_new_top,
+                    camera_ortho.left,
+                    camera_ortho.right,
+                    camera_ortho.bottom,
+                    camera_ortho.top,
                     0.0,
                     20.0,
                 );
-
-                // Store projection for next loop
-                camera_ortho.left = camera_new_left;
-                camera_ortho.right = camera_new_right;
-                camera_ortho.bottom = camera_new_bottom;
-                camera_ortho.top = camera_new_top;
 
                 // Update Camera Translation
                 let camera_x = transform.translation().x;
