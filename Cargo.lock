@@ -2114,27 +2114,25 @@ dependencies = [
 
 [[package]]
 name = "nalgebra"
-version = "0.20.0"
+version = "0.30.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c6511777ed3da44b6a11e732a66a7d6274dfbbcd68ad968e64b778dcb829d94a"
+checksum = "4fb2d0de08694bed883320212c18ee3008576bfe8c306f4c3c4a58b4876998be"
 dependencies = [
- "alga",
- "approx 0.3.2",
- "generic-array",
- "matrixmultiply 0.2.4",
- "num-complex 0.2.4",
- "num-rational 0.2.4",
+ "approx 0.5.1",
+ "matrixmultiply 0.3.2",
+ "nalgebra-macros",
+ "num-complex 0.4.0",
+ "num-rational 0.4.0",
  "num-traits 0.2.14",
- "rand 0.7.3",
- "rand_distr",
+ "simba",
  "typenum",
 ]
 
 [[package]]
 name = "nalgebra"
-version = "0.30.1"
+version = "0.31.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4fb2d0de08694bed883320212c18ee3008576bfe8c306f4c3c4a58b4876998be"
+checksum = "0eef2ccf9aefdae3334ad5911b5414724b9047bfe145b3353d5878732cc7b86b"
 dependencies = [
  "approx 0.5.1",
  "matrixmultiply 0.3.2",
@@ -2700,7 +2698,7 @@ dependencies = [
  "amethyst",
  "assert_approx_eq",
  "log",
- "nalgebra 0.20.0",
+ "nalgebra 0.31.3",
  "ncollide2d",
  "ron",
  "sdl2",
