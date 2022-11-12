@@ -22,10 +22,6 @@ pub const TOI_SPEED_TRIGGER: f32 = 200.0;
 
 #[derive(SystemDesc, Default)]
 pub struct HitboxCollisionDetection {
-    //track existing collisions, key: entity IDs, values: contact point, masses, velocities
-    pub collision_ids: HashMap<(u32, u32), (Point<f32, U2>, f32, f32, f32, f32)>, 
-    //track future collisions, key: entity IDs, values: time-of-impact
-    pub future_collision_ids_toi: HashMap<(u32, u32), f32>, 
 }
 
 impl<'s> System<'s> for HitboxCollisionDetection {
