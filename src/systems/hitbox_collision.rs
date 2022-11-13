@@ -7,22 +7,22 @@ use amethyst::{
     },
 };
 
-use std::collections::HashMap;
-
 extern crate nalgebra as na;
-use na::{Point};
-use na::{Isometry2, Point2, Vector2};
-use ncollide2d::query::{self, Proximity, Ray, RayCast};
+use log::debug;
+use ncollide2d::{
+    na::{Isometry2, Point2, Vector2},
+    query::{self, Proximity, Ray, RayCast}, 
+    shape::{Shape, Ball, CompositeShape},
+};
 
-use crate::components::{Movable, get_movable_shape_pos, CollisionType, Mass, Hitbox};
+use crate::components::{Movable, CollisionType, Mass, Hitbox};
 
 
 pub const PRE_IMPACT_DT_STEPS: f32 = 1.1;
 pub const TOI_SPEED_TRIGGER: f32 = 200.0;
 
 #[derive(SystemDesc, Default)]
-pub struct HitboxCollisionDetection {
-}
+pub struct HitboxCollisionDetection {}
 
 impl<'s> System<'s> for HitboxCollisionDetection {
     type SystemData = (
@@ -55,7 +55,7 @@ impl<'s> System<'s> for HitboxCollisionDetection {
         let mut current_ids: Vec<u32> = vec![];
 
         // For movable, mass, hitboxes
-        for (entity, _movable, _mass, _hitbox, _transform) in (
+        for (entity1, movable1, mass1, hitbox1, transform1) in (
             &entities,
             &movables,
             &masses,
@@ -74,8 +74,24 @@ impl<'s> System<'s> for HitboxCollisionDetection {
             )
                 .join()
             {
-                if entity.id() != entity2.id() {
+                if entity1.id() != entity2.id() {
+                    match (hitbox1.collider.as_shape::<Ball<f32>>(), hitbox2.collider.as_shape::<Ball<f32>>()) {
+                        (Some(g1), Some(g2)) => {
+                            let proximity_res = query::proximity(
+                                &Isometry2::new(Vector2::new(
+                                    transform1.translation().x, transform1.translation().y), 0.0),
+                                g1,
+                                &Isometry2::new(Vector2::new(
+                                    transform2.translation().x, transform2.translation().y), 0.0),
+                                g2,
+                                0.001
+                            );
+                            debug!("Proximity {:?}", proximity_res);
+                        }
+                        _ => {
 
+                        }
+                    }
                 }
             }
         }

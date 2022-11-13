@@ -3,7 +3,6 @@ use amethyst::ecs::prelude::{Component, DenseVecStorage};
 use serde::Deserialize;
 
 use ncollide2d::na::{Vector2};
-use ncollide2d::query::{self, Proximity};
 use ncollide2d::shape::{Ball, Cuboid, ShapeHandle};
 
 
