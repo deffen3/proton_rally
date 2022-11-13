@@ -36,7 +36,8 @@ fn load_ron_asset<T: DeserializeOwned>(path: &[&str]) -> T {
 
 
 fn main() -> amethyst::Result<()> {
-    amethyst::start_logger(Default::default());
+    //amethyst::start_logger(Default::default());
+    env_logger::init();
 
     let app_root = application_root_dir()?;
 
