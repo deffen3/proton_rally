@@ -86,10 +86,9 @@ impl<'s> System<'s> for HitboxCollisionDetection {
                                 g2,
                                 0.001
                             );
-                            debug!("Proximity {:?}", proximity_res);
+                            println!("Proximity {:?}", proximity_res);
                         }
                         _ => {
-
                         }
                     }
                 }
