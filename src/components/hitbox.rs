@@ -25,8 +25,8 @@ impl Component for HitboxProperties {
 }
 
 pub struct Hitbox {
-    pub hitbox: HitboxProperties,
-    collider: Box<ShapeHandle<f32>>
+    pub props: HitboxProperties,
+    pub collider: Box<ShapeHandle<f32>>
 }
 
 impl Component for Hitbox {
@@ -45,7 +45,7 @@ impl Hitbox {
         };
 
         Hitbox {
-            hitbox: HitboxProperties {width, height, shape},
+            props: HitboxProperties {width, height, shape},
             collider: Box::new(collider)}
     }
 }
