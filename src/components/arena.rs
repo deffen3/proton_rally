@@ -4,7 +4,7 @@ use serde::Deserialize;
 
 use std::collections::HashMap;
 
-use super::Hitbox;
+use super::HitboxProperties;
 
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Deserialize)]
@@ -31,7 +31,7 @@ impl Component for ArenaElement {
 #[derive(Copy, Clone, Debug, PartialEq, Deserialize)]
 pub struct ArenaElementHitbox {
     pub element: ArenaElement,
-    pub hitbox: Hitbox,
+    pub hitbox: HitboxProperties,
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Deserialize)]

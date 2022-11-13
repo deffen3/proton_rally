@@ -33,33 +33,33 @@
         //Outer Walls
         ArenaElementHitbox (
             element: ArenaElement( kind:Wall, x:-10.0, y:200.0, rotation:0),
-            hitbox: Hitbox ( shape:Rectangle, width:20.0, height:400.0)),
+            hitbox: HitboxProperties ( shape:Rectangle, width:20.0, height:400.0)),
         ArenaElementHitbox (
             element: ArenaElement( kind:Wall, x:410.0, y:200.0, rotation:0),
-            hitbox: Hitbox ( shape:Rectangle, width:20.0, height:400.0)),
+            hitbox: HitboxProperties ( shape:Rectangle, width:20.0, height:400.0)),
         ArenaElementHitbox (
             element: ArenaElement( kind:Wall, x:200.0, y:-10.0, rotation:90),
-            hitbox: Hitbox ( shape:Rectangle, width:20.0, height:400.0)),
+            hitbox: HitboxProperties ( shape:Rectangle, width:20.0, height:400.0)),
         ArenaElementHitbox (
             element: ArenaElement( kind:Wall, x:200.0, y:410.0, rotation:90),
-            hitbox: Hitbox ( shape:Rectangle, width:20.0, height:400.0)),
+            hitbox: HitboxProperties ( shape:Rectangle, width:20.0, height:400.0)),
 
         //Inner Circle Obstacles
         ArenaElementHitbox (
             element: ArenaElement( kind:Wall, x:200.0, y:200.0, rotation:0),
-            hitbox: Hitbox ( shape:Circle, width:40.0, height:40.0)),
+            hitbox: HitboxProperties ( shape:Circle, width:40.0, height:40.0)),
         ArenaElementHitbox (
             element: ArenaElement( kind:Wall, x:80.0, y:200.0, rotation:0),
-            hitbox: Hitbox ( shape:Circle, width:20.0, height:20.0)),
+            hitbox: HitboxProperties ( shape:Circle, width:20.0, height:20.0)),
         ArenaElementHitbox (
             element: ArenaElement( kind:Wall, x:200.0, y:80.0, rotation:0),
-            hitbox: Hitbox ( shape:Circle, width:20.0, height:20.0)),
+            hitbox: HitboxProperties ( shape:Circle, width:20.0, height:20.0)),
         ArenaElementHitbox (
             element: ArenaElement( kind:Wall, x:320.0, y:200.0, rotation:0),
-            hitbox: Hitbox ( shape:Circle, width:20.0, height:20.0)),
+            hitbox: HitboxProperties ( shape:Circle, width:20.0, height:20.0)),
         ArenaElementHitbox (
             element: ArenaElement( kind:Wall, x:200.0, y:320.0, rotation:0),
-            hitbox: Hitbox ( shape:Circle, width:20.0, height:20.0)),
+            hitbox: HitboxProperties ( shape:Circle, width:20.0, height:20.0)),
     ],
     player_spawn_points: [
         PlayerSpawnPoint (x: 80.0, y: 80.0, rotation: -45.0),

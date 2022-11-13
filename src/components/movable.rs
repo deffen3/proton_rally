@@ -57,7 +57,7 @@ pub fn get_movable_shape_pos(
     let collider_pos =
         Isometry2::new(Vector2::new(x, y), angle);
     let collider_shape =
-        Ball::new(hitbox.width / 2.0);
+        Ball::new(hitbox.hitbox.width / 2.0);
 
     (collider_pos, collider_shape)
 }

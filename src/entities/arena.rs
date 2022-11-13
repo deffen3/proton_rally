@@ -75,10 +75,10 @@ pub fn intialize_arena(
                         x: arena_element.element.x,
                         y: arena_element.element.y,
                         rotation: arena_element.element.rotation})
-                    .with(Hitbox{
-                        width: hitbox_width,
-                        height: hitbox_height,
-                        shape: arena_element.hitbox.shape})
+                    .with(Hitbox::new(
+                        hitbox_width,
+                        hitbox_height,
+                        arena_element.hitbox.shape))
                     .with(element_transform)
                     .with(sprite)
                     .build();

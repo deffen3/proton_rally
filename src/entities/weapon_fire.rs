@@ -6,9 +6,8 @@ use amethyst::{
 
 use std::f32::consts::PI;
 
-use crate::components::{CollisionType, Movable, Weapon, WeaponFire, Hitbox, Mass, Powerable};
+use crate::components::{CollisionType, Movable, Weapon, WeaponFire, Hitbox, HitboxShape, Mass, Powerable};
 use crate::resources::WeaponFireResource;
-
 
 pub fn fire_weapon(
     entities: &Entities,
@@ -42,11 +41,11 @@ pub fn fire_weapon(
         (local_transform, weapon_fire_movable)
     };
 
-    let weapon_fire_hitbox = Hitbox{
-        height: 2.0,
-        width: 2.0,
-        shape: crate::components::HitboxShape::Circle,
-    };
+    let weapon_fire_hitbox = Hitbox::new(
+        2.0,
+        2.0,
+        HitboxShape::Circle,
+    );
 
     let weapon_fire_mass = Mass{mass: 0.01};
 

@@ -44,10 +44,10 @@ pub fn intialize_player(
                 300.0,
                 CollisionType::Bounce{bounces:None, sticks:false}))
             .with(Mass::new(1.0))
-            .with(Hitbox{
-                width: 16.0 * x_scale,
-                height: 16.0 * y_scale,
-                shape: HitboxShape::Circle})
+            .with(Hitbox::new(
+                16.0 * x_scale,
+                16.0 * y_scale,
+                HitboxShape::Circle))
             .with(Shield{
                 cooldown: Cooldown::new(0.0, 0.333),
                 power: Powerable::new(power, power),
